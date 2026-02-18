@@ -5,15 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ebf1b77-02c4-477f-aa5e-480b6408d4f3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/OCR_FEATURES.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/QUICKSTART_OCR.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/REQUIREMENTS_SATISFIED.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/SETUP.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/templates/result.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/COMPLETION_CERTIFICATE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY4_AUDIT_REPORT.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY4_FINAL_SUMMARY.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY4_FIXES_APPLIED.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY4_QUICK_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/INTEGRATION_AUDIT_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/INTEGRATION_FIXES_APPLIED.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NLP_MODULE_COMPLETE_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/NLP_PREPROCESSING_VERIFIED.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/QUICK_REFERENCE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TOPIC_ANALYSIS_COMPLETION_REPORT.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TOPIC_ANALYSIS_DOCS.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TOPIC_ANALYSIS_QUICK_REF.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TOPIC_ANALYSIS_README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/TOPIC_ANALYSIS_SUMMARY.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/example_topic_analysis.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/examples_nlp_usage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/preprocessing.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_preprocessing.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_topic_analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/result.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/result.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,8 +50,8 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="Python Script" />
         <option value="HTML File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -53,22 +69,23 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.app.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
-    "git-widget-placeholder": "main",
-    "ignore.virus.scanning.warn.message": "true",
-    "junie.onboarding.icon.badge.shown": "true",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "to.speed.mode.migration.done": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.app.executor&quot;: &quot;Run&quot;,
+    &quot;Python.examples_nlp_usage.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>

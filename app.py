@@ -6,6 +6,9 @@ import pytesseract
 from PIL import Image
 import pdfplumber
 
+# Import NLP preprocessing functions
+from modules.preprocessing import preprocess_text, extract_questions, analyze_topics
+
 # Configure Tesseract path for Windows (uncomment and set path if needed)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -132,10 +135,43 @@ def upload_file():
             # Extract text from the uploaded file
             extracted_text = extract_text(filepath)
 
-            # Render result page with extracted text
+            # Apply NLP preprocessing
+            try:
+                # Preprocess the extracted text
+                cleaned_text, tokens = preprocess_text(extracted_text)
+
+                # Extract questions from the text
+                questions = extract_questions(extracted_text)
+
+                # Day 4: Analyze topics and rank questions
+                topic_analysis = analyze_topics(tokens, questions)
+                top_keywords = topic_analysis['top_keywords']
+                ranked_questions = topic_analysis['ranked_questions']
+
+                # Calculate statistics
+                token_count = len(tokens)
+                question_count = len(questions)
+
+            except Exception as nlp_error:
+                # If NLP processing fails, use fallback values
+                print(f"NLP processing failed: {nlp_error}")
+                cleaned_text = extracted_text
+                questions = []
+                token_count = 0
+                question_count = 0
+                top_keywords = []
+                ranked_questions = []
+
+            # Render result page with extracted text and NLP results
             return render_template('result.html',
                                    filename=filename,
-                                   extracted_text=extracted_text)
+                                   extracted_text=extracted_text,
+                                   cleaned_text=cleaned_text,
+                                   questions=questions,
+                                   question_count=question_count,
+                                   token_count=token_count,
+                                   keywords=top_keywords,
+                                   ranked=ranked_questions)
 
         except Exception as e:
             # Handle OCR errors

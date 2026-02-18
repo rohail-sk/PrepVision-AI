@@ -60,10 +60,69 @@
 
         <div class="info">
             <strong>File:</strong> {{ filename }}<br>
-            <strong>Status:</strong> Text extraction completed successfully
+            <strong>Status:</strong> Text extraction completed successfully<br>
+            <strong>Questions Found:</strong> {{ question_count }}<br>
+            <strong>Tokens Generated:</strong> {{ token_count }}
         </div>
 
-        <h3>Extracted Text:</h3>
+        <h3>📊 Extracted Questions:</h3>
+        {% if questions and questions|length > 0 %}
+        <div class="text-box" style="background-color: #e8f5e9;">
+            {% for question in questions %}
+            <div style="margin-bottom: 15px; padding: 10px; background-color: white; border-left: 3px solid #4caf50; border-radius: 3px;">
+                <strong>Question {{ loop.index }}:</strong><br>
+                {{ question }}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+            ⚠️ No questions detected in this document.
+        </div>
+        {% endif %}
+
+        <h3>🔥 Top Keywords (Most Important Topics):</h3>
+        {% if keywords and keywords|length > 0 %}
+        <div class="text-box" style="background-color: #fff3e0;">
+            {% for word, frequency in keywords %}
+            <div style="display: inline-block; margin: 5px; padding: 8px 15px; background-color: #ff9800; color: white; border-radius: 20px; font-weight: bold;">
+                {{ word }} ({{ frequency }})
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+            ⚠️ No keywords extracted.
+        </div>
+        {% endif %}
+
+        <h3>🏆 Ranked Questions (By Importance):</h3>
+        {% if ranked and ranked|length > 0 %}
+        <div class="text-box" style="background-color: #f3e5f5;">
+            {% for question, score, idx in ranked %}
+            <div style="margin-bottom: 15px; padding: 12px; background-color: white; border-left: 4px solid
+                {% if score >= (ranked|map(attribute=1)|sum / ranked|length * 1.5) %}#e91e63
+                {% elif score >= (ranked|map(attribute=1)|sum / ranked|length) %}#ff9800
+                {% else %}#4caf50{% endif %}; border-radius: 3px;">
+                <strong>Q{{ idx }}
+                {% if score >= (ranked|map(attribute=1)|sum / ranked|length * 1.5) %}🔴 HIGH PRIORITY
+                {% elif score >= (ranked|map(attribute=1)|sum / ranked|length) %}🟡 MEDIUM
+                {% else %}🟢 LOW{% endif %}
+                [Score: {{ "%.2f"|format(score) }}]</strong><br>
+                {{ question[:200] }}{% if question|length > 200 %}...{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+            ⚠️ No ranked questions available.
+        </div>
+        {% endif %}
+
+        <h3>🧹 Cleaned/Preprocessed Text:</h3>
+        <div class="text-box" style="background-color: #e3f2fd;">{{ cleaned_text }}</div>
+
+        <h3>📄 Original Extracted Text:</h3>
         <div class="text-box">{{ extracted_text }}</div>
 
         <a href="{{ url_for('index') }}" class="back-button">⬅ Upload Another File</a>
