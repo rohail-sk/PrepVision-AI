@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Extracted Text - PrepVision AI</title>
+    <title>Multi-Paper Analysis - PrepVision AI</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
             background-color: #f4f4f4;
@@ -52,38 +52,192 @@
             border-left: 4px solid #007bff;
             border-radius: 3px;
         }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .frequency-badge {
+            display: inline-block;
+            background-color: #ff5722;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .file-list {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .file-item {
+            padding: 8px;
+            background-color: white;
+            margin: 5px 0;
+            border-left: 3px solid #28a745;
+            border-radius: 3px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2>📄 Extracted Text from: {{ filename }}</h2>
+        <h2>📚 Multi-Paper Analysis Results</h2>
 
         <div class="info">
-            <strong>File:</strong> {{ filename }}<br>
-            <strong>Status:</strong> Text extraction completed successfully<br>
-            <strong>Questions Found:</strong> {{ question_count }}<br>
-            <strong>Tokens Generated:</strong> {{ token_count }}
+            <strong>🎯 Analysis Type:</strong> Cross-Paper Question Analysis<br>
+            <strong>📊 Files Processed:</strong> {{ files_processed }} question papers<br>
+            <strong>✅ Status:</strong> Analysis completed successfully
         </div>
 
-        <h3>📊 Extracted Questions:</h3>
-        {% if questions and questions|length > 0 %}
-        <div class="text-box" style="background-color: #e8f5e9;">
-            {% for question in questions %}
-            <div style="margin-bottom: 15px; padding: 10px; background-color: white; border-left: 3px solid #4caf50; border-radius: 3px;">
-                <strong>Question {{ loop.index }}:</strong><br>
-                {{ question }}
+        <!-- Statistics Dashboard -->
+        <h3>📈 Analysis Statistics</h3>
+        <div class="stats-grid">
+            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <div class="stat-number">{{ files_processed }}</div>
+                <div class="stat-label">Papers Analyzed</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <div class="stat-number">{{ total_questions }}</div>
+                <div class="stat-label">Total Questions</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <div class="stat-number">{{ unique_questions }}</div>
+                <div class="stat-label">Unique Questions</div>
+            </div>
+            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <div class="stat-number">{{ repeated_questions|length }}</div>
+                <div class="stat-label">Repeated Questions</div>
+            </div>
+        </div>
+
+        <!-- Processed Files List -->
+        <h3>📁 Processed Files</h3>
+        <div class="file-list">
+            {% for file in processed_files %}
+            <div class="file-item">
+                <strong>{{ loop.index }}.</strong> {{ file.filename }}
+                <span style="color: #666; font-size: 14px;">
+                    ({{ file.question_count }} questions, {{ file.token_count }} tokens)
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Predicted Question Paper Section (NEW) -->
+        {% if paper %}
+        <h3>📝 AI-Generated Predicted Question Paper</h3>
+        <div class="text-box" style="background-color: #e8f5e9; border-left: 4px solid #4caf50;">
+            <p style="color: #2e7d32; font-weight: bold; margin-top: 0;">
+                🎯 Based on cross-paper analysis, here's your personalized predicted question paper!
+            </p>
+
+            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                <!-- Section C: Long Answer Questions -->
+                <h4 style="color: #d32f2f; margin-top: 0;">
+                    📕 SECTION C — Long Answer Questions (Most Important)
+                </h4>
+                {% if paper.section_c and paper.section_c|length > 0 %}
+                <ol style="line-height: 2;">
+                    {% for q in paper.section_c %}
+                    <li style="margin-bottom: 15px; padding: 10px; background-color: #ffebee; border-left: 4px solid #d32f2f; border-radius: 3px;">
+                        {{ q }}
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p style="color: #999; font-style: italic;">No questions available for this section.</p>
+                {% endif %}
+
+                <!-- Section B: Medium Answer Questions -->
+                <h4 style="color: #f57c00; margin-top: 25px;">
+                    📗 SECTION B — Medium Answer Questions
+                </h4>
+                {% if paper.section_b and paper.section_b|length > 0 %}
+                <ol style="line-height: 2;">
+                    {% for q in paper.section_b %}
+                    <li style="margin-bottom: 15px; padding: 10px; background-color: #fff3e0; border-left: 4px solid #f57c00; border-radius: 3px;">
+                        {{ q }}
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p style="color: #999; font-style: italic;">No questions available for this section.</p>
+                {% endif %}
+
+                <!-- Section A: Short Answer Questions -->
+                <h4 style="color: #1976d2; margin-top: 25px;">
+                    📘 SECTION A — Short Answer Questions
+                </h4>
+                {% if paper.section_a and paper.section_a|length > 0 %}
+                <ol style="line-height: 2;">
+                    {% for q in paper.section_a %}
+                    <li style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border-left: 4px solid #1976d2; border-radius: 3px;">
+                        {{ q }}
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p style="color: #999; font-style: italic;">No questions available for this section.</p>
+                {% endif %}
+            </div>
+
+            <div style="margin-top: 15px; padding: 12px; background-color: #fff9c4; border-left: 4px solid #fbc02d; border-radius: 3px;">
+                <strong>💡 Tip:</strong> Focus on Section C (Long Answer) questions first as they have the highest importance based on frequency analysis across all uploaded papers.
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Repeated Questions Section -->
+        <h3>🔥 Most Repeated Questions Across Papers</h3>
+        {% if repeated_questions and repeated_questions|length > 0 %}
+        <div class="text-box" style="background-color: #fff3e0; border-left: 4px solid #ff9800;">
+            <p style="color: #e65100; font-weight: bold; margin-top: 0;">
+                ⚡ These questions appeared in multiple papers - HIGH PRIORITY for exam preparation!
+            </p>
+            {% for item in repeated_questions[:20] %}
+            <div style="margin-bottom: 15px; padding: 12px; background-color: white; border-left: 4px solid
+                {% if item.frequency >= 4 %}#d32f2f
+                {% elif item.frequency >= 3 %}#f57c00
+                {% else %}#fbc02d{% endif %}; border-radius: 3px;">
+                <span class="frequency-badge">Appeared {{ item.frequency }}x</span>
+                <br><br>
+                {{ item.question[:300] }}{% if item.question|length > 300 %}...{% endif %}
             </div>
             {% endfor %}
         </div>
         {% else %}
-        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-            ⚠️ No questions detected in this document.
+        <div class="text-box" style="background-color: #e8f5e9; border-left: 4px solid #4caf50;">
+            ℹ️ No repeated questions found. Each question appears only once across all papers.
         </div>
         {% endif %}
 
-        <h3>🔥 Top Keywords (Most Important Topics):</h3>
+        <!-- Top Keywords Section -->
+        <h3>🔥 Top Keywords (Most Important Topics Across All Papers)</h3>
         {% if keywords and keywords|length > 0 %}
         <div class="text-box" style="background-color: #fff3e0;">
+            <p style="color: #e65100; font-weight: bold; margin-top: 0;">
+                📌 These keywords appear most frequently across all analyzed papers:
+            </p>
             {% for word, frequency in keywords %}
             <div style="display: inline-block; margin: 5px; padding: 8px 15px; background-color: #ff9800; color: white; border-radius: 20px; font-weight: bold;">
                 {{ word }} ({{ frequency }})
@@ -96,20 +250,24 @@
         </div>
         {% endif %}
 
-        <h3>🏆 Ranked Questions (By Importance):</h3>
+        <!-- Ranked Questions Section -->
+        <h3>🏆 Top 20 Most Important Questions (By Keyword Relevance)</h3>
         {% if ranked and ranked|length > 0 %}
         <div class="text-box" style="background-color: #f3e5f5;">
-            {% for question, score, idx in ranked %}
+            <p style="color: #7b1fa2; font-weight: bold; margin-top: 0;">
+                🎯 Questions ranked by relevance to important topics:
+            </p>
+            {% for question, score, idx in ranked[:20] %}
             <div style="margin-bottom: 15px; padding: 12px; background-color: white; border-left: 4px solid
                 {% if score >= (ranked|map(attribute=1)|sum / ranked|length * 1.5) %}#e91e63
                 {% elif score >= (ranked|map(attribute=1)|sum / ranked|length) %}#ff9800
                 {% else %}#4caf50{% endif %}; border-radius: 3px;">
-                <strong>Q{{ idx }}
+                <strong>
                 {% if score >= (ranked|map(attribute=1)|sum / ranked|length * 1.5) %}🔴 HIGH PRIORITY
                 {% elif score >= (ranked|map(attribute=1)|sum / ranked|length) %}🟡 MEDIUM
                 {% else %}🟢 LOW{% endif %}
-                [Score: {{ "%.2f"|format(score) }}]</strong><br>
-                {{ question[:200] }}{% if question|length > 200 %}...{% endif %}
+                [Importance Score: {{ "%.2f"|format(score) }}]</strong><br><br>
+                {{ question[:300] }}{% if question|length > 300 %}...{% endif %}
             </div>
             {% endfor %}
         </div>
@@ -119,15 +277,17 @@
         </div>
         {% endif %}
 
-        <h3>🧹 Cleaned/Preprocessed Text:</h3>
-        <div class="text-box" style="background-color: #e3f2fd;">{{ cleaned_text }}</div>
+        <!-- Errors Section -->
+        {% if extraction_errors and extraction_errors|length > 0 %}
+        <h3>⚠️ Processing Warnings</h3>
+        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
+            {% for error in extraction_errors %}
+            <div style="margin-bottom: 5px;">• {{ error }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-        <h3>📄 Original Extracted Text:</h3>
-        <div class="text-box">{{ extracted_text }}</div>
-
-        <a href="{{ url_for('index') }}" class="back-button">⬅ Upload Another File</a>
+        <a href="{{ url_for('index') }}" class="back-button">⬅ Analyze More Papers</a>
     </div>
 </body>
 </html>
-
-

@@ -9,6 +9,9 @@ import pdfplumber
 # Import NLP preprocessing functions
 from modules.preprocessing import preprocess_text, extract_questions, analyze_topics
 
+# Import question paper generator
+from modules.generator import generate_predicted_paper
+
 # Configure Tesseract path for Windows (uncomment and set path if needed)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -104,81 +107,147 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload_file():
     """
-    Handle file upload from the form.
-    Validates file type, saves it to the uploads folder,
-    and extracts text using OCR.
+    Handle multiple file uploads from the form.
+    Validates file types, saves them to the uploads folder,
+    and extracts text using OCR from all files.
+    Performs cross-paper analysis to detect repeated questions.
     Returns:
-        Redirect to result page with extracted text or error message
+        Redirect to result page with aggregated analysis or error message
     """
-    # Check if file is present in request
-    if 'file' not in request.files:
-        flash('No file selected!', 'error')
+    # Get list of uploaded files
+    files = request.files.getlist('files')
+
+    # Validate that files were uploaded
+    if not files or len(files) == 0:
+        flash('No files selected!', 'error')
         return redirect(url_for('index'))
 
-    file = request.files['file']
-
-    # Check if user selected a file
-    if file.filename == '':
-        flash('No file selected!', 'error')
+    # Check if at least one file has a filename
+    if all(f.filename == '' for f in files):
+        flash('No files selected!', 'error')
         return redirect(url_for('index'))
 
-    # Check if file type is allowed
-    if file and allowed_file(file.filename):
-        # Secure the filename to prevent malicious file names
-        filename = secure_filename(file.filename)
+    # Validate minimum 5 files requirement
+    valid_files = [f for f in files if f.filename != '']
+    if len(valid_files) < 5:
+        flash(f'Please upload at least 5 question papers. You uploaded {len(valid_files)} file(s).', 'error')
+        return redirect(url_for('index'))
 
-        # Save file to uploads folder
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+    # Lists to store aggregated data
+    all_questions = []
+    all_tokens = []
+    processed_files = []
+    extraction_errors = []
+
+    # Process each uploaded file
+    for file in valid_files:
+        # Check if file type is allowed
+        if not allowed_file(file.filename):
+            flash(f'Invalid file type for {file.filename}! Only PDF, JPG, JPEG, and PNG files are allowed.', 'error')
+            continue
 
         try:
-            # Extract text from the uploaded file
+            # Secure the filename
+            filename = secure_filename(file.filename)
+
+            # Save file to uploads folder
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+
+            # Extract text from the file
             extracted_text = extract_text(filepath)
 
-            # Apply NLP preprocessing
+            # Apply NLP preprocessing for this file
             try:
                 # Preprocess the extracted text
                 cleaned_text, tokens = preprocess_text(extracted_text)
 
-                # Extract questions from the text
+                # Extract questions from this paper
                 questions = extract_questions(extracted_text)
 
-                # Day 4: Analyze topics and rank questions
-                topic_analysis = analyze_topics(tokens, questions)
-                top_keywords = topic_analysis['top_keywords']
-                ranked_questions = topic_analysis['ranked_questions']
+                # Aggregate data from this paper
+                all_questions.extend(questions)
+                all_tokens.extend(tokens)
 
-                # Calculate statistics
-                token_count = len(tokens)
-                question_count = len(questions)
+                # Track successfully processed files
+                processed_files.append({
+                    'filename': filename,
+                    'question_count': len(questions),
+                    'token_count': len(tokens)
+                })
 
             except Exception as nlp_error:
-                # If NLP processing fails, use fallback values
-                print(f"NLP processing failed: {nlp_error}")
-                cleaned_text = extracted_text
-                questions = []
-                token_count = 0
-                question_count = 0
-                top_keywords = []
-                ranked_questions = []
-
-            # Render result page with extracted text and NLP results
-            return render_template('result.html',
-                                   filename=filename,
-                                   extracted_text=extracted_text,
-                                   cleaned_text=cleaned_text,
-                                   questions=questions,
-                                   question_count=question_count,
-                                   token_count=token_count,
-                                   keywords=top_keywords,
-                                   ranked=ranked_questions)
+                print(f"NLP processing failed for {filename}: {nlp_error}")
+                extraction_errors.append(f"{filename}: NLP processing failed")
 
         except Exception as e:
-            # Handle OCR errors
-            flash(f'File uploaded but text extraction failed: {str(e)}', 'error')
-            return redirect(url_for('index'))
-    else:
-        flash('Invalid file type! Only PDF, JPG, JPEG, and PNG files are allowed.', 'error')
+            print(f"Error processing {file.filename}: {str(e)}")
+            extraction_errors.append(f"{file.filename}: {str(e)}")
+
+    # Check if we have any successfully processed files
+    if len(processed_files) == 0:
+        flash('Failed to process any files. Please check file formats and try again.', 'error')
+        return redirect(url_for('index'))
+
+    # Perform cross-paper analysis
+    try:
+        from collections import Counter
+
+        # Detect repeated questions using fuzzy matching on cleaned questions
+        # Normalize questions for comparison (lowercase, strip whitespace)
+        normalized_questions = {}
+        for q in all_questions:
+            # Create normalized version for comparison
+            normalized = ' '.join(q.lower().split())
+            if normalized not in normalized_questions:
+                normalized_questions[normalized] = {
+                    'original': q,
+                    'count': 0
+                }
+            normalized_questions[normalized]['count'] += 1
+
+        # Find repeated questions (appearing in multiple papers)
+        repeated_questions = [
+            {
+                'question': data['original'],
+                'frequency': data['count']
+            }
+            for norm_q, data in normalized_questions.items()
+            if data['count'] > 1
+        ]
+
+        # Sort by frequency (most repeated first)
+        repeated_questions.sort(key=lambda x: x['frequency'], reverse=True)
+
+        # Analyze topics across all papers
+        topic_analysis = analyze_topics(all_tokens, all_questions)
+        top_keywords = topic_analysis['top_keywords']
+        ranked_questions = topic_analysis['ranked_questions']
+
+        # Generate predicted question paper from ranked questions
+        predicted_paper = generate_predicted_paper(ranked_questions, top_keywords)
+
+        # Calculate statistics
+        total_questions = len(all_questions)
+        unique_questions = len(normalized_questions)
+        total_tokens = len(all_tokens)
+        files_processed = len(processed_files)
+
+        # Render result page with cross-paper analysis and predicted paper
+        return render_template('result.html',
+                             files_processed=files_processed,
+                             processed_files=processed_files,
+                             total_questions=total_questions,
+                             unique_questions=unique_questions,
+                             repeated_questions=repeated_questions,
+                             total_tokens=total_tokens,
+                             keywords=top_keywords,
+                             ranked=ranked_questions,
+                             paper=predicted_paper,
+                             extraction_errors=extraction_errors)
+
+    except Exception as e:
+        flash(f'Analysis failed: {str(e)}', 'error')
         return redirect(url_for('index'))
 
 
