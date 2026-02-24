@@ -1,5 +1,5 @@
 # Import necessary libraries
-from flask import Flask, render_template, request, flash, redirect, url_for
+from flask import Flask, render_template, request, flash, redirect, url_for, send_file
 from werkzeug.utils import secure_filename
 import os
 import pytesseract
@@ -11,6 +11,9 @@ from modules.preprocessing import preprocess_text, extract_questions, analyze_to
 
 # Import question paper generator
 from modules.generator import generate_predicted_paper
+
+# Import PDF generator
+from modules.pdf_generator import create_pdf
 
 # Configure Tesseract path for Windows (uncomment and set path if needed)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
@@ -127,10 +130,10 @@ def upload_file():
         flash('No files selected!', 'error')
         return redirect(url_for('index'))
 
-    # Validate minimum 5 files requirement
+    # Validate minimum 2 files requirement
     valid_files = [f for f in files if f.filename != '']
-    if len(valid_files) < 5:
-        flash(f'Please upload at least 5 question papers. You uploaded {len(valid_files)} file(s).', 'error')
+    if len(valid_files) < 2:
+        flash(f'Please upload at least 2 question papers. You uploaded {len(valid_files)} file(s).', 'error')
         return redirect(url_for('index'))
 
     # Lists to store aggregated data
@@ -227,6 +230,16 @@ def upload_file():
         # Generate predicted question paper from ranked questions
         predicted_paper = generate_predicted_paper(ranked_questions, top_keywords)
 
+        # Generate PDF version of the predicted paper
+        try:
+            pdf_path = create_pdf(predicted_paper)
+            print(f"✅ PDF generated successfully: {pdf_path}")
+            pdf_available = True
+        except Exception as pdf_error:
+            print(f"⚠️ PDF generation failed: {pdf_error}")
+            pdf_path = None
+            pdf_available = False
+
         # Calculate statistics
         total_questions = len(all_questions)
         unique_questions = len(normalized_questions)
@@ -244,10 +257,39 @@ def upload_file():
                              keywords=top_keywords,
                              ranked=ranked_questions,
                              paper=predicted_paper,
+                             pdf_available=pdf_available,
                              extraction_errors=extraction_errors)
 
     except Exception as e:
         flash(f'Analysis failed: {str(e)}', 'error')
+        return redirect(url_for('index'))
+
+
+# Route to download the generated PDF
+@app.route('/download')
+def download_pdf():
+    """
+    Send the generated PDF file to the user for download.
+    Returns:
+        PDF file download or error message if file doesn't exist
+    """
+    try:
+        pdf_path = os.path.join('static', 'generated', 'predicted_paper.pdf')
+
+        # Check if PDF exists
+        if not os.path.exists(pdf_path):
+            flash('PDF not found. Please generate a predicted paper first.', 'error')
+            return redirect(url_for('index'))
+
+        # Send file for download
+        return send_file(
+            pdf_path,
+            as_attachment=True,
+            download_name='PrepVision_AI_Predicted_Paper.pdf',
+            mimetype='application/pdf'
+        )
+    except Exception as e:
+        flash(f'Error downloading PDF: {str(e)}', 'error')
         return redirect(url_for('index'))
 
 

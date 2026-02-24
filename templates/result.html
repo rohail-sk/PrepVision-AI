@@ -45,6 +45,21 @@
         .back-button:hover {
             background-color: #0056b3;
         }
+        .download-button {
+            display: inline-block;
+            margin-top: 20px;
+            margin-left: 10px;
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        .download-button:hover {
+            background-color: #218838;
+        }
         .info {
             margin-bottom: 15px;
             padding: 10px;
@@ -204,6 +219,18 @@
             <div style="margin-top: 15px; padding: 12px; background-color: #fff9c4; border-left: 4px solid #fbc02d; border-radius: 3px;">
                 <strong>💡 Tip:</strong> Focus on Section C (Long Answer) questions first as they have the highest importance based on frequency analysis across all uploaded papers.
             </div>
+
+            <!-- PDF Download Button -->
+            {% if pdf_available %}
+            <div style="margin-top: 20px; text-align: center; padding: 15px; background-color: #e8f5e9; border-radius: 8px;">
+                <a href="{{ url_for('download_pdf') }}" class="download-button">
+                    📥 Download Predicted Paper (PDF)
+                </a>
+                <p style="margin-top: 10px; color: #2e7d32; font-size: 14px;">
+                    ✅ PDF version is ready for download and printing!
+                </p>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
 
