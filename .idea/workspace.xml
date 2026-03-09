@@ -5,21 +5,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ebf1b77-02c4-477f-aa5e-480b6408d4f3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DAY7_COMPLETION_CERTIFICATE.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DAY7_FINAL_COMPREHENSIVE_REPORT.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DAY7_QUICK_REFERENCE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/RESEARCH_PAPER_TECHNICAL_EXPLANATION.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/day7_audit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/final_day7_audit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_audit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_fuzzy_matching.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/test_similarity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/verify_minimum_2.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ARCHITECTURE_DOCUMENTATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/practice_paper_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/question_extractor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/question_ranker.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/similarity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/text_cleaner.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/modules/topic_analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/modules/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/pdf_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/pdf_generator.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/generated/predicted_paper.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/static/generated/predicted_paper.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/result.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/result.html" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -34,8 +32,8 @@
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
-      <entry key="chat-panel" value="Claude Opus 4.6" />
-      <entry key="agent-panel" value="Claude Opus 4.6" />
+      <entry key="chat-panel" value="Claude Opus 4.5" />
+      <entry key="agent-panel" value="Claude Opus 4.5" />
     </selectedModels>
   </component>
   <component name="FileTemplateManagerImpl">
@@ -93,6 +91,27 @@
       <updated>1771139923232</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="OPEN_GENERIC_TABS">
+      <map>
+        <entry key="2be2f6fd-52e5-4a2e-9662-b59ba722ee84" value="TOOL_WINDOW" />
+      </map>
+    </option>
+    <option name="TAB_STATES">
+      <map>
+        <entry key="2be2f6fd-52e5-4a2e-9662-b59ba722ee84">
+          <value>
+            <State />
+          </value>
+        </entry>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
   <component name="github-copilot-workspace">
     <instructionFileLocations>

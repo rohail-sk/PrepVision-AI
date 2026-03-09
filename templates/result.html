@@ -484,9 +484,14 @@
                 <a href="{{ url_for('index') }}" class="nav-btn nav-btn-ghost">
                     <i class="fas fa-arrow-left"></i> New Analysis
                 </a>
+                {% if report_pdf_available %}
+                <a href="{{ url_for('download_report_pdf') }}" class="nav-btn nav-btn-ghost" style="border-color: rgba(253,121,168,0.3); color: #fd79a8;">
+                    <i class="fas fa-star"></i> Important Questions
+                </a>
+                {% endif %}
                 {% if pdf_available %}
                 <a href="{{ url_for('download_pdf') }}" class="nav-btn nav-btn-primary">
-                    <i class="fas fa-download"></i> Download PDF
+                    <i class="fas fa-download"></i> Practice Paper
                 </a>
                 {% endif %}
             </div>
@@ -640,14 +645,72 @@
                 {% if pdf_available %}
                 <div class="download-cta">
                     <div class="download-cta-text">
-                        <h4><i class="fas fa-file-pdf"></i>&nbsp; PDF Version Ready</h4>
-                        <p>Download the predicted paper as a beautifully formatted PDF for printing or offline study.</p>
+                        <h4><i class="fas fa-file-pdf"></i>&nbsp; Practice Paper PDF Ready</h4>
+                        <p>Download the practice paper as a beautifully formatted PDF for printing or offline study.</p>
                     </div>
                     <a href="{{ url_for('download_pdf') }}" class="download-btn">
-                        <i class="fas fa-download"></i> Download PDF
+                        <i class="fas fa-download"></i> Download Practice Paper
                     </a>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- IMPORTANT QUESTIONS REPORT SECTION -->
+        {% if report_pdf_available %}
+        <div class="section-card" style="border: 2px solid rgba(253,121,168,0.3);">
+            <div class="section-header open" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(253,121,168,0.2);color:#fd79a8;">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">📊 Important Questions Report</div>
+                        <div class="section-subtitle">Frequently repeated questions ranked by importance — download the full report!</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="section-body open">
+                {% if important_report and important_report.sections %}
+                    {% for section in important_report.sections %}
+                        {% if section.questions and section.questions|length > 0 %}
+                        <div style="margin-bottom: 20px;">
+                            <h4 style="color: {{ section.color }}; margin-bottom: 12px; font-size: 14px;">
+                                {{ section.badge }} {{ section.name }}
+                            </h4>
+                            {% for q in section.questions[:5] %}
+                            <div class="question-item" style="border-left: 3px solid {{ section.color }};">
+                                <div class="q-num" style="background: {{ section.color }}20; color: {{ section.color }};">{{ loop.index }}</div>
+                                <div class="q-text">
+                                    {{ q.question[:200] }}{% if q.question|length > 200 %}...{% endif %}
+                                    <div style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">
+                                        <i class="fas fa-redo"></i> Appeared {{ q.frequency }}x &nbsp;|&nbsp;
+                                        <i class="fas fa-chart-line"></i> Score: {{ q.importance_score }}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                            {% if section.questions|length > 5 %}
+                            <p style="font-size: 12px; color: var(--text-muted); margin-top: 10px; padding-left: 20px;">
+                                <i class="fas fa-info-circle"></i> +{{ section.questions|length - 5 }} more questions in this category — download PDF for full list
+                            </p>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                <div class="download-cta" style="background: linear-gradient(135deg, rgba(253,121,168,0.1), rgba(108,92,231,0.1)); border: 1px solid rgba(253,121,168,0.3);">
+                    <div class="download-cta-text">
+                        <h4 style="color: #fd79a8;"><i class="fas fa-file-pdf"></i>&nbsp; Important Questions Report PDF</h4>
+                        <p>Download the complete list of important questions with frequency counts and importance scores.</p>
+                    </div>
+                    <a href="{{ url_for('download_report_pdf') }}" class="download-btn" style="background: linear-gradient(135deg, #fd79a8, #e17055);">
+                        <i class="fas fa-download"></i> Download Report PDF
+                    </a>
+                </div>
             </div>
         </div>
         {% endif %}

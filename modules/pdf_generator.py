@@ -125,21 +125,22 @@ def create_pdf(predicted_paper):
         story = []  # This will hold all PDF elements
 
         # Add title
-        story.append(Paragraph("PREDICTED QUESTION PAPER", title_style))
+        story.append(Paragraph("PRACTICE QUESTION PAPER", title_style))
         story.append(Spacer(1, 0.1*inch))
 
         # Add subtitle with generation date
         generation_date = datetime.now().strftime("%B %d, %Y")
-        story.append(Paragraph(f"AI-Generated Exam Paper | {generation_date}", subtitle_style))
+        story.append(Paragraph(f"Based on PYQ Analysis | {generation_date}", subtitle_style))
         story.append(Spacer(1, 0.2*inch))
 
         # Add instructions
         instructions = """
         <b>Instructions:</b><br/>
-        • This paper is generated based on analysis of multiple previous year question papers.<br/>
+        • This is a PRACTICE paper based on analysis of multiple previous year question papers.<br/>
+        • Questions are selected based on frequency and importance patterns from PYQ analysis.<br/>
         • Section C contains the most important questions (highest priority).<br/>
         • Focus your preparation on Section C first, then Section B, then Section A.<br/>
-        • Time management is crucial during the actual exam.
+        • <b>Note:</b> This is NOT a guaranteed prediction, but a study guide based on PYQ trends.
         """
         story.append(Paragraph(instructions, instructions_style))
         story.append(Spacer(1, 0.3*inch))
@@ -237,6 +238,169 @@ def create_pdf(predicted_paper):
         raise Exception(f"Failed to generate PDF: {str(e)}")
 
 
+def create_important_questions_pdf(important_report):
+    """
+    Generate a PDF report of important questions with frequency and importance levels.
+
+    Args:
+        important_report: Dictionary with important questions data from question_ranker
+
+    Returns:
+        str: Path to generated PDF
+    """
+    print("\n" + "="*60)
+    print("📄 IMPORTANT QUESTIONS REPORT PDF GENERATION")
+    print("="*60)
+
+    # Ensure output directory exists
+    output_dir = os.path.join("static", "generated")
+    os.makedirs(output_dir, exist_ok=True)
+
+    # Define output file path
+    filename = "important_questions_report.pdf"
+    filepath = os.path.join(output_dir, filename)
+
+    try:
+        # Create PDF document
+        doc = SimpleDocTemplate(
+            filepath,
+            pagesize=A4,
+            rightMargin=72,
+            leftMargin=72,
+            topMargin=72,
+            bottomMargin=72
+        )
+
+        # Define styles
+        styles = getSampleStyleSheet()
+
+        title_style = ParagraphStyle(
+            'ReportTitle',
+            parent=styles['Heading1'],
+            fontSize=22,
+            textColor=HexColor('#1a237e'),
+            spaceAfter=12,
+            alignment=TA_CENTER,
+            fontName='Helvetica-Bold'
+        )
+
+        subtitle_style = ParagraphStyle(
+            'ReportSubtitle',
+            parent=styles['Normal'],
+            fontSize=11,
+            textColor=HexColor('#424242'),
+            spaceAfter=20,
+            alignment=TA_CENTER,
+            fontName='Helvetica'
+        )
+
+        section_style = ParagraphStyle(
+            'ImportanceSection',
+            parent=styles['Heading2'],
+            fontSize=14,
+            spaceAfter=10,
+            spaceBefore=15,
+            fontName='Helvetica-Bold'
+        )
+
+        question_style = ParagraphStyle(
+            'ImportantQuestion',
+            parent=styles['Normal'],
+            fontSize=10,
+            textColor=HexColor('#212121'),
+            spaceAfter=8,
+            leftIndent=15,
+            fontName='Helvetica',
+            leading=14
+        )
+
+        freq_style = ParagraphStyle(
+            'FrequencyTag',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=HexColor('#757575'),
+            leftIndent=30,
+            spaceAfter=12,
+            fontName='Helvetica-Oblique'
+        )
+
+        # Build content
+        story = []
+
+        # Title
+        story.append(Paragraph("IMPORTANT QUESTIONS REPORT", title_style))
+        story.append(Spacer(1, 0.1*inch))
+
+        # Subtitle
+        generation_date = datetime.now().strftime("%B %d, %Y")
+        total_analyzed = important_report.get('total_analyzed', 0)
+        story.append(Paragraph(
+            f"Based on PYQ Analysis | {generation_date} | {total_analyzed} questions analyzed",
+            subtitle_style
+        ))
+        story.append(Spacer(1, 0.2*inch))
+
+        # Process each importance section
+        sections = important_report.get('sections', [])
+
+        for section in sections:
+            section_name = section.get('name', 'Questions')
+            section_color = section.get('color', '#333333')
+            questions = section.get('questions', [])
+            badge = section.get('badge', '')
+
+            if not questions:
+                continue
+
+            # Section heading with color
+            section_heading_style = ParagraphStyle(
+                f'Section_{section_name}',
+                parent=section_style,
+                textColor=HexColor(section_color)
+            )
+
+            story.append(Paragraph(f"{badge} {section_name}", section_heading_style))
+            story.append(Spacer(1, 0.05*inch))
+
+            # Questions in this section
+            for i, q in enumerate(questions, 1):
+                question_text = q.get('question', '')
+                frequency = q.get('frequency', 1)
+                importance_score = q.get('importance_score', 0)
+
+                # Question text
+                story.append(Paragraph(f"<b>{i}.</b> {question_text}", question_style))
+
+                # Frequency tag
+                story.append(Paragraph(
+                    f"📊 Appeared {frequency} time(s) | Score: {importance_score}",
+                    freq_style
+                ))
+
+        # Footer
+        story.append(Spacer(1, 0.5*inch))
+        footer_style = ParagraphStyle(
+            'ReportFooter',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=HexColor('#757575'),
+            alignment=TA_CENTER,
+            fontName='Helvetica-Oblique'
+        )
+        story.append(Paragraph("--- End of Important Questions Report ---", footer_style))
+        story.append(Paragraph("Generated by PrepVision AI", footer_style))
+
+        # Build PDF
+        doc.build(story)
+        print(f"✅ Important Questions Report PDF generated: {filepath}")
+
+        return filepath
+
+    except Exception as e:
+        print(f"❌ ERROR generating report PDF: {str(e)}")
+        raise Exception(f"Failed to generate report PDF: {str(e)}")
+
+
 # Testing function (runs only when this file is executed directly)
 if __name__ == "__main__":
     print("\n" + "="*70)
@@ -277,5 +441,3 @@ if __name__ == "__main__":
         print(f"Error: {str(e)}")
 
     print("\n" + "="*70)
-
-
