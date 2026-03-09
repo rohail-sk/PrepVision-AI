@@ -1,105 +1,498 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>PrepVision AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrepVision AI — Smart Question Paper Predictor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: rgba(255,255,255,0.04);
+            --bg-card-hover: rgba(255,255,255,0.08);
+            --text-primary: #f0f0f8;
+            --text-secondary: #9898b8;
+            --text-muted: #6868a0;
+            --accent-1: #6c5ce7;
+            --accent-2: #a29bfe;
+            --accent-3: #00cec9;
+            --accent-4: #fd79a8;
+            --gradient-1: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --gradient-2: linear-gradient(135deg, #00cec9, #55efc4);
+            --gradient-3: linear-gradient(135deg, #fd79a8, #e17055);
+            --gradient-hero: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 25%, #00cec9 50%, #55efc4 75%, #6c5ce7 100%);
+            --border-color: rgba(255,255,255,0.08);
+            --shadow-glow: 0 0 60px rgba(108,92,231,0.15);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
         }
-        h2 {
-            color: #333;
-            text-align: center;
+
+        .bg-mesh {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 0; overflow: hidden;
         }
-        .container {
-            background-color: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .bg-mesh .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); opacity: 0.3;
+            animation: float 20s infinite ease-in-out;
         }
-        form {
-            margin-top: 20px;
+        .bg-mesh .orb:nth-child(1) {
+            width: 600px; height: 600px; background: #6c5ce7;
+            top: -10%; left: -10%; animation-delay: 0s;
         }
-        input[type="file"] {
-            padding: 10px;
-            border: 2px dashed #007bff;
-            border-radius: 5px;
-            width: 100%;
-            cursor: pointer;
+        .bg-mesh .orb:nth-child(2) {
+            width: 500px; height: 500px; background: #00cec9;
+            top: 50%; right: -10%; animation-delay: -7s; animation-duration: 25s;
         }
-        button {
-            margin-top: 15px;
-            padding: 12px 30px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s;
+        .bg-mesh .orb:nth-child(3) {
+            width: 400px; height: 400px; background: #fd79a8;
+            bottom: -10%; left: 30%; animation-delay: -14s; animation-duration: 22s;
         }
-        button:hover {
-            background-color: #0056b3;
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(50px, -50px) scale(1.1); }
+            50% { transform: translate(-30px, 60px) scale(0.95); }
+            75% { transform: translate(40px, 30px) scale(1.05); }
         }
-        .flash-messages {
-            margin-bottom: 20px;
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 60px 60px; z-index: 0;
         }
-        .flash {
-            padding: 12px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+
+        .page-wrapper {
+            position: relative; z-index: 1; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; padding: 40px 20px;
         }
-        .flash.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+
+        /* Navbar */
+        .navbar {
+            width: 100%; max-width: 1100px;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            margin-bottom: 60px;
+            animation: slideDown 0.8s ease-out;
         }
-        .flash.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .info-box {
-            background-color: #e7f3ff;
-            padding: 15px;
-            border-left: 4px solid #007bff;
-            border-radius: 3px;
-            margin-bottom: 20px;
+        .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-logo {
+            width: 42px; height: 42px; background: var(--gradient-1);
+            border-radius: var(--radius-sm); display: flex;
+            align-items: center; justify-content: center; font-size: 20px;
+            box-shadow: 0 4px 15px rgba(108,92,231,0.4);
+        }
+        .nav-title { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+        .nav-title span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-badge {
+            padding: 6px 14px; background: rgba(108,92,231,0.15);
+            border: 1px solid rgba(108,92,231,0.3); border-radius: 20px;
+            font-size: 12px; font-weight: 600; color: var(--accent-2); letter-spacing: 0.5px;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center; max-width: 800px; margin-bottom: 60px;
+            animation: fadeUp 1s ease-out 0.3s both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 20px; background: rgba(108,92,231,0.1);
+            border: 1px solid rgba(108,92,231,0.2); border-radius: 30px;
+            font-size: 13px; font-weight: 600; color: var(--accent-2);
+            margin-bottom: 24px; letter-spacing: 0.5px;
+        }
+        .pulse-dot {
+            width: 8px; height: 8px; background: #55efc4;
+            border-radius: 50%; animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+        }
+        .hero h1 {
+            font-size: clamp(36px, 5vw, 56px); font-weight: 800;
+            line-height: 1.15; margin-bottom: 20px; letter-spacing: -1px;
+        }
+        .hero h1 .gradient-text {
+            background: var(--gradient-hero); background-size: 200% auto;
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text; animation: shimmer 4s linear infinite;
+        }
+        @keyframes shimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        .hero p {
+            font-size: 18px; line-height: 1.7; color: var(--text-secondary);
+            max-width: 600px; margin: 0 auto;
+        }
+
+        /* Features */
+        .features-strip {
+            display: flex; flex-wrap: wrap; justify-content: center;
+            gap: 16px; margin-bottom: 50px;
+            animation: fadeUp 1s ease-out 0.5s both;
+        }
+        .feature-chip {
+            display: flex; align-items: center; gap: 10px;
+            padding: 12px 20px; background: var(--bg-card);
+            border: 1px solid var(--border-color); border-radius: var(--radius-md);
+            backdrop-filter: blur(10px); transition: all 0.3s ease;
+        }
+        .feature-chip:hover {
+            background: var(--bg-card-hover); border-color: rgba(108,92,231,0.3);
+            transform: translateY(-2px);
+        }
+        .chip-icon {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
+        }
+        .feature-chip:nth-child(1) .chip-icon { background: rgba(108,92,231,0.15); color: #a29bfe; }
+        .feature-chip:nth-child(2) .chip-icon { background: rgba(0,206,201,0.15); color: #55efc4; }
+        .feature-chip:nth-child(3) .chip-icon { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .feature-chip:nth-child(4) .chip-icon { background: rgba(255,234,167,0.15); color: #ffeaa7; }
+        .chip-text { font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+
+        /* Upload Card */
+        .upload-card {
+            width: 100%; max-width: 680px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color); border-radius: var(--radius-xl);
+            backdrop-filter: blur(20px); padding: 48px 40px;
+            box-shadow: var(--shadow-glow);
+            animation: fadeUp 1s ease-out 0.7s both;
+            position: relative; overflow: hidden;
+        }
+        .upload-card::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 2px;
+            background: var(--gradient-hero); background-size: 200% auto;
+            animation: shimmer 4s linear infinite;
+        }
+        .flash-container { margin-bottom: 24px; }
+        .flash-msg {
+            display: flex; align-items: center; gap: 12px;
+            padding: 14px 18px; border-radius: var(--radius-sm);
+            font-size: 14px; font-weight: 500; margin-bottom: 10px;
+            animation: slideIn 0.4s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        .flash-msg.error {
+            background: rgba(253,121,168,0.1); border: 1px solid rgba(253,121,168,0.3); color: #fd79a8;
+        }
+        .flash-msg.success {
+            background: rgba(85,239,196,0.1); border: 1px solid rgba(85,239,196,0.3); color: #55efc4;
+        }
+        .format-info {
+            display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+            padding: 14px 18px; background: rgba(108,92,231,0.06);
+            border: 1px solid rgba(108,92,231,0.15); border-radius: var(--radius-sm);
+            margin-bottom: 28px; font-size: 13px; color: var(--text-secondary);
+        }
+        .format-info i { color: var(--accent-2); font-size: 16px; }
+        .format-tag {
+            padding: 3px 10px; background: rgba(108,92,231,0.15);
+            border-radius: 6px; font-size: 11px; font-weight: 600;
+            color: var(--accent-2); font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed rgba(108,92,231,0.3); border-radius: var(--radius-lg);
+            padding: 50px 30px; text-align: center; cursor: pointer;
+            transition: all 0.3s ease; background: rgba(108,92,231,0.02); position: relative;
+        }
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: var(--accent-1); background: rgba(108,92,231,0.08); transform: scale(1.01);
+        }
+        .drop-zone.drag-over { box-shadow: 0 0 30px rgba(108,92,231,0.2); }
+        .drop-icon {
+            width: 72px; height: 72px; margin: 0 auto 20px;
+            background: var(--gradient-1); border-radius: 20px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; box-shadow: 0 8px 30px rgba(108,92,231,0.3);
+            transition: transform 0.3s ease;
+        }
+        .drop-zone:hover .drop-icon { transform: translateY(-5px); }
+        .drop-zone h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--text-primary); }
+        .drop-zone p { font-size: 14px; color: var(--text-muted); }
+        .browse-link { color: var(--accent-2); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+        .file-input { display: none; }
+
+        /* File list */
+        .file-list { margin-top: 20px; display: none; }
+        .file-list.has-files { display: block; }
+        .file-list-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .file-list-header h4 { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+        .file-count-badge {
+            padding: 4px 12px; background: rgba(85,239,196,0.15);
+            border-radius: 12px; font-size: 12px; font-weight: 600; color: #55efc4;
+        }
+        .file-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 16px;
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); margin-bottom: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+        .file-item .file-icon {
+            width: 36px; height: 36px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; flex-shrink: 0;
+        }
+        .file-icon.pdf { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .file-icon.img { background: rgba(0,206,201,0.15); color: #55efc4; }
+        .file-name {
+            flex: 1; font-size: 13px; font-weight: 500; color: var(--text-secondary);
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+        }
+        .file-size { font-size: 12px; color: var(--text-muted); font-family: 'JetBrains Mono', monospace; }
+
+        /* Submit */
+        .submit-btn {
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            width: 100%; margin-top: 28px; padding: 18px 32px;
+            background: var(--gradient-1); color: white; border: none;
+            border-radius: var(--radius-md); font-family: 'Inter', sans-serif;
+            font-size: 16px; font-weight: 600; cursor: pointer;
+            transition: all 0.3s ease; box-shadow: 0 8px 30px rgba(108,92,231,0.3);
+            position: relative; overflow: hidden; letter-spacing: 0.3px;
+        }
+        .submit-btn::before {
+            content: ''; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+        .submit-btn:hover::before { left: 100%; }
+        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(108,92,231,0.45); }
+        .submit-btn:active { transform: translateY(0); }
+        .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+        .spinner {
+            display: none; width: 20px; height: 20px;
+            border: 2px solid rgba(255,255,255,0.3); border-top-color: white;
+            border-radius: 50%; animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .submit-btn.loading .spinner { display: block; }
+        .submit-btn.loading .btn-text { display: none; }
+        .submit-btn.loading .btn-loading-text { display: inline; }
+        .btn-loading-text { display: none; }
+
+        .min-files-hint {
+            display: flex; align-items: center; gap: 8px;
+            margin-top: 14px; font-size: 13px; color: var(--text-muted);
+        }
+        .min-files-hint i { font-size: 14px; color: var(--accent-3); }
+
+        .footer {
+            margin-top: 60px; text-align: center; color: var(--text-muted); font-size: 13px;
+            animation: fadeUp 1s ease-out 1s both;
+        }
+
+        @media (max-width: 768px) {
+            .page-wrapper { padding: 20px 14px; }
+            .navbar { flex-wrap: wrap; gap: 12px; padding: 14px 18px; }
+            .upload-card { padding: 32px 22px; }
+            .drop-zone { padding: 36px 20px; }
+            .features-strip { gap: 10px; }
+            .feature-chip { padding: 10px 14px; }
+            .chip-text { font-size: 12px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>📚 PrepVision AI - Question Paper Predictor</h2>
+    <div class="bg-mesh">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+    <div class="bg-grid"></div>
 
-        <!-- Flash Messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="flash-messages">
-                    {% for category, message in messages %}
-                        <div class="flash {{ category }}">{{ message }}</div>
-                    {% endfor %}
-                </div>
-            {% endif %}
-        {% endwith %}
+    <div class="page-wrapper">
+        <nav class="navbar">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo">🧠</div>
+                <div class="nav-title">Prep<span>Vision</span> AI</div>
+            </a>
+            <div class="nav-badge"><i class="fas fa-bolt"></i>&nbsp; AI Powered</div>
+        </nav>
 
-        <div class="info-box">
-            <strong>📄 Supported File Types:</strong> PDF, JPG, JPEG, PNG<br>
-            <strong>📚 Multi-Paper Analysis:</strong> Upload at least 2 previous-year question papers<br>
-            <strong>🔍 What it does:</strong> Detects repeated questions and important topics across papers
+        <section class="hero">
+            <div class="hero-eyebrow">
+                <span class="pulse-dot"></span>
+                Intelligent Question Paper Analysis
+            </div>
+            <h1>
+                Predict Your Next Exam<br>
+                <span class="gradient-text">With AI Precision</span>
+            </h1>
+            <p>
+                Upload previous year question papers and let our AI engine analyze patterns,
+                detect frequently repeated questions, and generate a smart predicted paper for you.
+            </p>
+        </section>
+
+        <div class="features-strip">
+            <div class="feature-chip">
+                <div class="chip-icon"><i class="fas fa-file-pdf"></i></div>
+                <span class="chip-text">Multi-Paper Upload</span>
+            </div>
+            <div class="feature-chip">
+                <div class="chip-icon"><i class="fas fa-eye"></i></div>
+                <span class="chip-text">OCR Extraction</span>
+            </div>
+            <div class="feature-chip">
+                <div class="chip-icon"><i class="fas fa-brain"></i></div>
+                <span class="chip-text">NLP Analysis</span>
+            </div>
+            <div class="feature-chip">
+                <div class="chip-icon"><i class="fas fa-chart-line"></i></div>
+                <span class="chip-text">Smart Ranking</span>
+            </div>
         </div>
 
-        <form action="/upload" method="post" enctype="multipart/form-data">
-            <label for="files"><strong>Select Multiple Question Papers (Minimum 2):</strong></label>
-            <input type="file" id="files" name="files" accept=".pdf,.jpg,.jpeg,.png" multiple required>
-            <p style="color: #666; font-size: 14px; margin-top: 5px;">
-                💡 Tip: Hold Ctrl (Windows) or Cmd (Mac) to select multiple files
-            </p>
-            <button type="submit">🚀 Upload & Analyze Papers</button>
-        </form>
+        <div class="upload-card">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-container">
+                        {% for category, message in messages %}
+                            <div class="flash-msg {{ category }}">
+                                <i class="fas {% if category == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="format-info">
+                <i class="fas fa-info-circle"></i>
+                <span>Supported:&nbsp;</span>
+                <span class="format-tag">PDF</span>
+                <span class="format-tag">JPG</span>
+                <span class="format-tag">JPEG</span>
+                <span class="format-tag">PNG</span>
+                <span>&nbsp;— Upload minimum <strong style="color:var(--accent-3)">2 papers</strong></span>
+            </div>
+
+            <form action="/upload" method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                    <h3>Drag & Drop Your Papers Here</h3>
+                    <p>or <span class="browse-link">browse files</span> from your computer</p>
+                    <input type="file" id="files" name="files" accept=".pdf,.jpg,.jpeg,.png" multiple required class="file-input">
+                </div>
+
+                <div class="file-list" id="fileList">
+                    <div class="file-list-header">
+                        <h4><i class="fas fa-paperclip"></i>&nbsp; Selected Files</h4>
+                        <span class="file-count-badge" id="fileCount">0 files</span>
+                    </div>
+                    <div id="fileItems"></div>
+                </div>
+
+                <div class="min-files-hint">
+                    <i class="fas fa-lightbulb"></i>
+                    <span>Hold <kbd style="padding:2px 6px;background:rgba(255,255,255,0.1);border-radius:4px;font-size:11px;">Ctrl</kbd> to select multiple files at once</span>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    <div class="spinner"></div>
+                    <i class="fas fa-rocket btn-text"></i>
+                    <span class="btn-text">Upload & Analyze Papers</span>
+                    <span class="btn-loading-text">Analyzing... This may take a moment</span>
+                </button>
+            </form>
+        </div>
+
+        <div class="footer">
+            <p>PrepVision AI &mdash; Built with <i class="fas fa-heart" style="color:#fd79a8;font-size:11px;"></i> for smarter exam prep</p>
+        </div>
     </div>
+
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('files');
+        const fileList = document.getElementById('fileList');
+        const fileItems = document.getElementById('fileItems');
+        const fileCount = document.getElementById('fileCount');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('uploadForm');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        ['dragenter','dragover'].forEach(evt => {
+            dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        });
+        ['dragleave','drop'].forEach(evt => {
+            dropZone.addEventListener(evt, e => { e.preventDefault(); dropZone.classList.remove('drag-over'); });
+        });
+        dropZone.addEventListener('drop', e => { fileInput.files = e.dataTransfer.files; updateFileList(); });
+
+        fileInput.addEventListener('change', updateFileList);
+
+        function updateFileList() {
+            const files = fileInput.files;
+            fileItems.innerHTML = '';
+            if (files.length > 0) {
+                fileList.classList.add('has-files');
+                fileCount.textContent = files.length + ' file' + (files.length > 1 ? 's' : '');
+                Array.from(files).forEach((file, i) => {
+                    const ext = file.name.split('.').pop().toLowerCase();
+                    const isPdf = ext === 'pdf';
+                    const size = (file.size / 1024).toFixed(1) + ' KB';
+                    const item = document.createElement('div');
+                    item.className = 'file-item';
+                    item.style.animationDelay = (i * 0.05) + 's';
+                    item.innerHTML = `
+                        <div class="file-icon ${isPdf ? 'pdf' : 'img'}">
+                            <i class="fas ${isPdf ? 'fa-file-pdf' : 'fa-image'}"></i>
+                        </div>
+                        <span class="file-name">${file.name}</span>
+                        <span class="file-size">${size}</span>
+                    `;
+                    fileItems.appendChild(item);
+                });
+            } else {
+                fileList.classList.remove('has-files');
+            }
+        }
+
+        form.addEventListener('submit', () => { submitBtn.classList.add('loading'); submitBtn.disabled = true; });
+    </script>
 </body>
 </html>

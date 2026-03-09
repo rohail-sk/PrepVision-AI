@@ -5,14 +5,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ebf1b77-02c4-477f-aa5e-480b6408d4f3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/DAY6_COMPLETION_CERTIFICATE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DAY6_PDF_EXPORT_COMPLETION_REPORT.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/DAY6_PDF_EXPORT_QUICK_REFERENCE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MINIMUM_FILES_UPDATE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/pdf_generator.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY7_COMPLETION_CERTIFICATE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY7_FINAL_COMPREHENSIVE_REPORT.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/DAY7_QUICK_REFERENCE.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/RESEARCH_PAPER_TECHNICAL_EXPLANATION.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/day7_audit.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/final_day7_audit.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_audit.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_fuzzy_matching.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/test_similarity.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/verify_minimum_2.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/modules/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/generated/predicted_paper.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/static/generated/predicted_paper.pdf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/result.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/result.html" afterDir="false" />
     </list>
@@ -28,8 +34,8 @@
   </component>
   <component name="CopilotUserSelectedModel">
     <selectedModels>
-      <entry key="chat-panel" value="Claude Sonnet 4.5" />
-      <entry key="agent-panel" value="Claude Sonnet 4.5" />
+      <entry key="chat-panel" value="Claude Opus 4.6" />
+      <entry key="agent-panel" value="Claude Opus 4.6" />
     </selectedModels>
   </component>
   <component name="FileTemplateManagerImpl">

@@ -133,7 +133,7 @@ def upload_file():
     # Validate minimum 2 files requirement
     valid_files = [f for f in files if f.filename != '']
     if len(valid_files) < 2:
-        flash(f'Please upload at least 2 question papers. You uploaded {len(valid_files)} file(s).', 'error')
+        flash(f'Please upload at least 2 question papers for analysis. You uploaded {len(valid_files)} file(s).', 'error')
         return redirect(url_for('index'))
 
     # Lists to store aggregated data
@@ -195,29 +195,71 @@ def upload_file():
     # Perform cross-paper analysis
     try:
         from collections import Counter
+        from difflib import SequenceMatcher
 
         # Detect repeated questions using fuzzy matching on cleaned questions
-        # Normalize questions for comparison (lowercase, strip whitespace)
-        normalized_questions = {}
+        # This detects questions with similar meaning but different wording
+
+        # Step 1: Normalize all questions
+        normalized_questions = []
         for q in all_questions:
-            # Create normalized version for comparison
+            # Create normalized version for comparison (lowercase, strip whitespace)
             normalized = ' '.join(q.lower().split())
-            if normalized not in normalized_questions:
-                normalized_questions[normalized] = {
-                    'original': q,
+            normalized_questions.append({
+                'original': q,
+                'normalized': normalized,
+                'group_id': None
+            })
+
+        # Step 2: Group similar questions using fuzzy matching
+        # Similarity threshold: 0.60 means 60% similarity required to be considered "similar"
+        # This allows detection of questions with different wording but similar meaning
+        SIMILARITY_THRESHOLD = 0.60
+        group_id = 0
+
+        for i, q1 in enumerate(normalized_questions):
+            if q1['group_id'] is not None:
+                continue  # Already assigned to a group
+
+            # Start new group with this question
+            q1['group_id'] = group_id
+
+            # Find all similar questions
+            for j, q2 in enumerate(normalized_questions):
+                if i >= j or q2['group_id'] is not None:
+                    continue  # Skip self-comparison and already grouped questions
+
+                # Calculate similarity ratio using SequenceMatcher
+                similarity = SequenceMatcher(None, q1['normalized'], q2['normalized']).ratio()
+
+                # If similarity is above threshold, add to same group
+                if similarity >= SIMILARITY_THRESHOLD:
+                    q2['group_id'] = group_id
+
+            group_id += 1
+
+        # Step 3: Count frequency for each group
+        group_frequencies = {}
+        for q in normalized_questions:
+            gid = q['group_id']
+            if gid not in group_frequencies:
+                group_frequencies[gid] = {
+                    'questions': [],
                     'count': 0
                 }
-            normalized_questions[normalized]['count'] += 1
+            group_frequencies[gid]['questions'].append(q['original'])
+            group_frequencies[gid]['count'] += 1
 
-        # Find repeated questions (appearing in multiple papers)
-        repeated_questions = [
-            {
-                'question': data['original'],
-                'frequency': data['count']
-            }
-            for norm_q, data in normalized_questions.items()
-            if data['count'] > 1
-        ]
+        # Step 4: Find repeated questions (appearing multiple times or in similar forms)
+        repeated_questions = []
+        for gid, data in group_frequencies.items():
+            if data['count'] > 1:
+                # Use the first question as representative
+                repeated_questions.append({
+                    'question': data['questions'][0],
+                    'frequency': data['count'],
+                    'variants': data['questions'][:3]  # Show up to 3 variants
+                })
 
         # Sort by frequency (most repeated first)
         repeated_questions.sort(key=lambda x: x['frequency'], reverse=True)
@@ -242,7 +284,7 @@ def upload_file():
 
         # Calculate statistics
         total_questions = len(all_questions)
-        unique_questions = len(normalized_questions)
+        unique_questions = len(group_frequencies)  # Number of unique question groups
         total_tokens = len(all_tokens)
         files_processed = len(processed_files)
 

@@ -1,320 +1,823 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Multi-Paper Analysis - PrepVision AI</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analysis Results — PrepVision AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-card: rgba(255,255,255,0.04);
+            --bg-card-hover: rgba(255,255,255,0.08);
+            --text-primary: #f0f0f8;
+            --text-secondary: #9898b8;
+            --text-muted: #6868a0;
+            --accent-1: #6c5ce7;
+            --accent-2: #a29bfe;
+            --accent-3: #00cec9;
+            --accent-4: #fd79a8;
+            --green: #55efc4;
+            --orange: #fdcb6e;
+            --red: #fd79a8;
+            --gradient-1: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            --gradient-2: linear-gradient(135deg, #00cec9, #55efc4);
+            --gradient-3: linear-gradient(135deg, #fd79a8, #e17055);
+            --gradient-4: linear-gradient(135deg, #fdcb6e, #f39c12);
+            --gradient-hero: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 25%, #00cec9 50%, #55efc4 75%, #6c5ce7 100%);
+            --border-color: rgba(255,255,255,0.08);
+            --shadow-glow: 0 0 60px rgba(108,92,231,0.15);
+            --radius-sm: 12px;
+            --radius-md: 16px;
+            --radius-lg: 24px;
+            --radius-xl: 32px;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #f4f4f4;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
         }
-        h2 {
-            color: #333;
-            text-align: center;
+
+        /* Background */
+        .bg-mesh {
+            position: fixed; top: 0; left: 0;
+            width: 100%; height: 100%; z-index: 0; overflow: hidden;
         }
-        .container {
-            background-color: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        .bg-mesh .orb {
+            position: absolute; border-radius: 50%;
+            filter: blur(120px); opacity: 0.2;
+            animation: float 20s infinite ease-in-out;
         }
-        .text-box {
-            border: 1px solid #ddd;
-            padding: 15px;
-            background-color: #f9f9f9;
-            border-radius: 5px;
-            max-height: 500px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            font-family: 'Courier New', monospace;
-            line-height: 1.6;
+        .bg-mesh .orb:nth-child(1) { width: 500px; height: 500px; background: #6c5ce7; top: -5%; left: -5%; }
+        .bg-mesh .orb:nth-child(2) { width: 400px; height: 400px; background: #00cec9; top: 40%; right: -5%; animation-delay: -7s; }
+        .bg-mesh .orb:nth-child(3) { width: 350px; height: 350px; background: #fd79a8; bottom: 10%; left: 20%; animation-delay: -14s; }
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(40px, -40px) scale(1.08); }
+            50% { transform: translate(-25px, 50px) scale(0.95); }
+            75% { transform: translate(35px, 25px) scale(1.03); }
         }
-        .back-button {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
+        .bg-grid {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background-image:
+                linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+            background-size: 60px 60px; z-index: 0;
         }
-        .back-button:hover {
-            background-color: #0056b3;
+
+        .page-wrapper {
+            position: relative; z-index: 1;
+            max-width: 1200px; margin: 0 auto; padding: 40px 20px;
         }
-        .download-button {
-            display: inline-block;
-            margin-top: 20px;
-            margin-left: 10px;
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: background-color 0.3s;
-            font-weight: bold;
+
+        /* Navbar */
+        .navbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 16px 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(20px);
+            margin-bottom: 40px;
+            animation: slideDown 0.6s ease-out;
         }
-        .download-button:hover {
-            background-color: #218838;
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        .info {
-            margin-bottom: 15px;
-            padding: 10px;
-            background-color: #e7f3ff;
-            border-left: 4px solid #007bff;
-            border-radius: 3px;
+        .nav-brand { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+        .nav-logo {
+            width: 40px; height: 40px; background: var(--gradient-1);
+            border-radius: var(--radius-sm); display: flex;
+            align-items: center; justify-content: center; font-size: 18px;
+            box-shadow: 0 4px 15px rgba(108,92,231,0.4);
         }
+        .nav-title { font-size: 18px; font-weight: 700; color: var(--text-primary); }
+        .nav-title span {
+            background: var(--gradient-1);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .nav-actions { display: flex; gap: 12px; align-items: center; }
+        .nav-btn {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 20px; border-radius: var(--radius-sm);
+            font-size: 13px; font-weight: 600; text-decoration: none;
+            transition: all 0.3s ease; cursor: pointer; border: none;
+            font-family: 'Inter', sans-serif;
+        }
+        .nav-btn-ghost {
+            background: rgba(255,255,255,0.05); color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+        .nav-btn-ghost:hover { background: rgba(255,255,255,0.1); color: var(--text-primary); }
+        .nav-btn-primary {
+            background: var(--gradient-1); color: white;
+            box-shadow: 0 4px 15px rgba(108,92,231,0.3);
+        }
+        .nav-btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(108,92,231,0.4); }
+
+        /* Page header */
+        .page-header {
+            text-align: center; margin-bottom: 40px;
+            animation: fadeUp 0.7s ease-out 0.2s both;
+        }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .page-header .status-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 8px 18px; background: rgba(85,239,196,0.1);
+            border: 1px solid rgba(85,239,196,0.25); border-radius: 20px;
+            font-size: 13px; font-weight: 600; color: #55efc4;
+            margin-bottom: 16px;
+        }
+        .status-badge .check-icon {
+            width: 18px; height: 18px; background: rgba(85,239,196,0.2);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 10px;
+        }
+        .page-header h1 {
+            font-size: 32px; font-weight: 800; margin-bottom: 8px; letter-spacing: -0.5px;
+        }
+        .page-header p { font-size: 15px; color: var(--text-muted); }
+
+        /* Stats Grid */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px; margin-bottom: 36px;
+            animation: fadeUp 0.7s ease-out 0.3s both;
         }
         .stat-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 20px;
-            border-radius: 8px;
-            text-align: center;
+            position: relative; overflow: hidden;
+            padding: 24px; border-radius: var(--radius-md);
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
         }
+        .stat-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-3px);
+            border-color: rgba(108,92,231,0.2);
+        }
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 3px;
+        }
+        .stat-card:nth-child(1)::before { background: var(--gradient-1); }
+        .stat-card:nth-child(2)::before { background: var(--gradient-3); }
+        .stat-card:nth-child(3)::before { background: var(--gradient-2); }
+        .stat-card:nth-child(4)::before { background: var(--gradient-4); }
+        .stat-card .stat-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 18px; margin-bottom: 16px;
+        }
+        .stat-card:nth-child(1) .stat-icon { background: rgba(108,92,231,0.15); color: #a29bfe; }
+        .stat-card:nth-child(2) .stat-icon { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .stat-card:nth-child(3) .stat-icon { background: rgba(0,206,201,0.15); color: #55efc4; }
+        .stat-card:nth-child(4) .stat-icon { background: rgba(253,203,110,0.15); color: #fdcb6e; }
         .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 5px;
+            font-size: 36px; font-weight: 800; margin-bottom: 4px;
+            font-family: 'JetBrains Mono', monospace;
         }
-        .stat-label {
-            font-size: 14px;
-            opacity: 0.9;
+        .stat-card:nth-child(1) .stat-number { color: #a29bfe; }
+        .stat-card:nth-child(2) .stat-number { color: #fd79a8; }
+        .stat-card:nth-child(3) .stat-number { color: #55efc4; }
+        .stat-card:nth-child(4) .stat-number { color: #fdcb6e; }
+        .stat-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+
+        /* Section Cards */
+        .section-card {
+            background: var(--bg-card); border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg); backdrop-filter: blur(10px);
+            margin-bottom: 24px; overflow: hidden;
+            animation: fadeUp 0.7s ease-out both;
         }
-        .frequency-badge {
-            display: inline-block;
-            background-color: #ff5722;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-left: 10px;
+        .section-card:nth-child(1) { animation-delay: 0.35s; }
+        .section-card:nth-child(2) { animation-delay: 0.4s; }
+        .section-card:nth-child(3) { animation-delay: 0.45s; }
+        .section-card:nth-child(4) { animation-delay: 0.5s; }
+        .section-card:nth-child(5) { animation-delay: 0.55s; }
+        .section-card:nth-child(6) { animation-delay: 0.6s; }
+
+        .section-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 28px; cursor: pointer;
+            transition: background 0.2s ease;
+            user-select: none;
         }
-        .file-list {
-            background-color: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 20px;
+        .section-header:hover { background: rgba(255,255,255,0.02); }
+        .section-header-left { display: flex; align-items: center; gap: 14px; }
+        .section-icon {
+            width: 40px; height: 40px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center; font-size: 16px;
         }
-        .file-item {
-            padding: 8px;
-            background-color: white;
-            margin: 5px 0;
-            border-left: 3px solid #28a745;
-            border-radius: 3px;
+        .section-title { font-size: 16px; font-weight: 700; }
+        .section-subtitle { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+        .section-toggle {
+            width: 32px; height: 32px; border-radius: 8px;
+            background: rgba(255,255,255,0.05); display: flex;
+            align-items: center; justify-content: center;
+            font-size: 12px; color: var(--text-muted);
+            transition: all 0.3s ease;
+        }
+        .section-header.open .section-toggle { transform: rotate(180deg); }
+        .section-body {
+            padding: 0 28px 24px; display: none;
+        }
+        .section-body.open { display: block; }
+
+        /* Processed Files */
+        .processed-file {
+            display: flex; align-items: center; gap: 14px;
+            padding: 14px 18px; background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color); border-radius: var(--radius-sm);
+            margin-bottom: 8px; transition: all 0.2s ease;
+        }
+        .processed-file:hover { background: rgba(255,255,255,0.04); }
+        .pf-index {
+            width: 30px; height: 30px; border-radius: 8px;
+            background: rgba(108,92,231,0.15); color: #a29bfe;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pf-name { flex: 1; font-size: 14px; font-weight: 500; color: var(--text-secondary); }
+        .pf-meta { display: flex; gap: 12px; }
+        .pf-tag {
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .pf-tag.questions { background: rgba(0,206,201,0.12); color: #55efc4; }
+        .pf-tag.tokens { background: rgba(108,92,231,0.12); color: #a29bfe; }
+
+        /* Predicted Paper */
+        .paper-section {
+            margin-bottom: 28px;
+        }
+        .paper-section-header {
+            display: flex; align-items: center; gap: 12px;
+            margin-bottom: 16px; padding-bottom: 12px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .paper-section-badge {
+            padding: 6px 14px; border-radius: 8px;
+            font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .badge-c { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .badge-b { background: rgba(253,203,110,0.15); color: #fdcb6e; }
+        .badge-a { background: rgba(108,92,231,0.15); color: #a29bfe; }
+        .paper-section-label { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+
+        .question-item {
+            display: flex; gap: 14px; padding: 16px 18px;
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); margin-bottom: 10px;
+            transition: all 0.3s ease; position: relative;
+        }
+        .question-item:hover {
+            background: rgba(255,255,255,0.05);
+            border-color: rgba(108,92,231,0.2);
+            transform: translateX(4px);
+        }
+        .q-num {
+            width: 28px; height: 28px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .section-c-items .q-num { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .section-b-items .q-num { background: rgba(253,203,110,0.15); color: #fdcb6e; }
+        .section-a-items .q-num { background: rgba(108,92,231,0.15); color: #a29bfe; }
+        .q-text { font-size: 14px; line-height: 1.7; color: var(--text-secondary); flex: 1; }
+
+        .empty-state {
+            text-align: center; padding: 30px;
+            color: var(--text-muted); font-size: 14px; font-style: italic;
+        }
+
+        /* PDF Download CTA */
+        .download-cta {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 24px 28px;
+            background: rgba(108,92,231,0.06);
+            border: 1px solid rgba(108,92,231,0.15);
+            border-radius: var(--radius-md);
+            margin-top: 20px;
+        }
+        .download-cta-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+        .download-cta-text p { font-size: 13px; color: var(--text-muted); }
+        .download-btn {
+            display: inline-flex; align-items: center; gap: 10px;
+            padding: 14px 28px; border-radius: var(--radius-sm);
+            background: var(--gradient-2); color: #0a0a1a;
+            font-size: 14px; font-weight: 700; text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,206,201,0.3);
+            white-space: nowrap;
+        }
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0,206,201,0.4);
+        }
+
+        /* Repeated Questions */
+        .repeated-item {
+            padding: 18px 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .repeated-item::before {
+            content: ''; position: absolute; left: 0; top: 0;
+            width: 4px; height: 100%;
+        }
+        .repeated-item.freq-high::before { background: var(--gradient-3); }
+        .repeated-item.freq-mid::before { background: var(--gradient-4); }
+        .repeated-item.freq-low::before { background: var(--gradient-2); }
+        .repeated-item:hover {
+            background: rgba(255,255,255,0.05);
+            transform: translateX(4px);
+        }
+        .freq-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 4px 12px; border-radius: 8px;
+            font-size: 11px; font-weight: 700; margin-bottom: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .freq-badge.high { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .freq-badge.mid { background: rgba(253,203,110,0.15); color: #fdcb6e; }
+        .freq-badge.low { background: rgba(0,206,201,0.15); color: #55efc4; }
+        .repeated-text { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+
+        /* Keywords Cloud */
+        .keywords-cloud {
+            display: flex; flex-wrap: wrap; gap: 10px; padding: 4px 0;
+        }
+        .keyword-tag {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 8px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 600;
+            transition: all 0.3s ease; cursor: default;
+        }
+        .keyword-tag:hover { transform: translateY(-2px); }
+        .keyword-tag .kw-count {
+            font-size: 11px; opacity: 0.7;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        /* Alternate keyword colors */
+        .keyword-tag:nth-child(6n+1) { background: rgba(108,92,231,0.15); color: #a29bfe; }
+        .keyword-tag:nth-child(6n+2) { background: rgba(0,206,201,0.15); color: #55efc4; }
+        .keyword-tag:nth-child(6n+3) { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .keyword-tag:nth-child(6n+4) { background: rgba(253,203,110,0.15); color: #fdcb6e; }
+        .keyword-tag:nth-child(6n+5) { background: rgba(116,185,255,0.15); color: #74b9ff; }
+        .keyword-tag:nth-child(6n+6) { background: rgba(85,239,196,0.15); color: #55efc4; }
+
+        /* Ranked Questions */
+        .ranked-item {
+            display: flex; gap: 14px; padding: 16px 18px;
+            background: rgba(255,255,255,0.02); border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm); margin-bottom: 10px;
+            transition: all 0.3s ease; position: relative; overflow: hidden;
+        }
+        .ranked-item::before {
+            content: ''; position: absolute; left: 0; top: 0;
+            width: 4px; height: 100%;
+        }
+        .ranked-item.priority-high::before { background: var(--gradient-3); }
+        .ranked-item.priority-mid::before { background: var(--gradient-4); }
+        .ranked-item.priority-low::before { background: var(--gradient-2); }
+        .ranked-item:hover { background: rgba(255,255,255,0.05); transform: translateX(4px); }
+        .rank-num {
+            width: 32px; height: 32px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 800; flex-shrink: 0;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .ranked-item.priority-high .rank-num { background: rgba(253,121,168,0.15); color: #fd79a8; }
+        .ranked-item.priority-mid .rank-num { background: rgba(253,203,110,0.15); color: #fdcb6e; }
+        .ranked-item.priority-low .rank-num { background: rgba(85,239,196,0.15); color: #55efc4; }
+        .rank-content { flex: 1; }
+        .rank-priority {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 11px; font-weight: 700; margin-bottom: 6px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .rank-priority.high { color: #fd79a8; }
+        .rank-priority.mid { color: #fdcb6e; }
+        .rank-priority.low { color: #55efc4; }
+        .rank-text { font-size: 14px; line-height: 1.7; color: var(--text-secondary); }
+
+        /* Errors section */
+        .error-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; margin-bottom: 6px;
+            font-size: 13px; color: var(--orange);
+        }
+        .error-item i { font-size: 14px; }
+
+        /* Tip box */
+        .tip-box {
+            display: flex; align-items: flex-start; gap: 12px;
+            padding: 16px 20px;
+            background: rgba(253,203,110,0.06);
+            border: 1px solid rgba(253,203,110,0.15);
+            border-radius: var(--radius-sm);
+            margin-top: 20px; margin-bottom: 8px;
+        }
+        .tip-box i { color: #fdcb6e; margin-top: 2px; flex-shrink: 0; }
+        .tip-box p { font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+
+        /* Footer */
+        .footer {
+            text-align: center; padding: 40px 0 20px;
+            color: var(--text-muted); font-size: 13px;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
+
+        @media (max-width: 768px) {
+            .page-wrapper { padding: 20px 14px; }
+            .navbar { flex-wrap: wrap; gap: 10px; padding: 14px 16px; }
+            .nav-actions { width: 100%; justify-content: center; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .section-header { padding: 16px 18px; }
+            .section-body { padding: 0 18px 18px; }
+            .download-cta { flex-direction: column; gap: 16px; text-align: center; }
+            .pf-meta { flex-direction: column; gap: 4px; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h2>📚 Multi-Paper Analysis Results</h2>
+    <div class="bg-mesh">
+        <div class="orb"></div>
+        <div class="orb"></div>
+        <div class="orb"></div>
+    </div>
+    <div class="bg-grid"></div>
 
-        <div class="info">
-            <strong>🎯 Analysis Type:</strong> Cross-Paper Question Analysis<br>
-            <strong>📊 Files Processed:</strong> {{ files_processed }} question papers<br>
-            <strong>✅ Status:</strong> Analysis completed successfully
+    <div class="page-wrapper">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="/" class="nav-brand">
+                <div class="nav-logo">🧠</div>
+                <div class="nav-title">Prep<span>Vision</span> AI</div>
+            </a>
+            <div class="nav-actions">
+                <a href="{{ url_for('index') }}" class="nav-btn nav-btn-ghost">
+                    <i class="fas fa-arrow-left"></i> New Analysis
+                </a>
+                {% if pdf_available %}
+                <a href="{{ url_for('download_pdf') }}" class="nav-btn nav-btn-primary">
+                    <i class="fas fa-download"></i> Download PDF
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <div class="status-badge">
+                <span class="check-icon"><i class="fas fa-check"></i></span>
+                Analysis Complete
+            </div>
+            <h1>Multi-Paper Analysis Results</h1>
+            <p>{{ files_processed }} papers analyzed &bull; {{ total_questions }} questions extracted</p>
         </div>
 
-        <!-- Statistics Dashboard -->
-        <h3>📈 Analysis Statistics</h3>
+        <!-- Stats Grid -->
         <div class="stats-grid">
-            <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
                 <div class="stat-number">{{ files_processed }}</div>
                 <div class="stat-label">Papers Analyzed</div>
             </div>
-            <div class="stat-card" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-question-circle"></i></div>
                 <div class="stat-number">{{ total_questions }}</div>
                 <div class="stat-label">Total Questions</div>
             </div>
-            <div class="stat-card" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-fingerprint"></i></div>
                 <div class="stat-number">{{ unique_questions }}</div>
                 <div class="stat-label">Unique Questions</div>
             </div>
-            <div class="stat-card" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+            <div class="stat-card">
+                <div class="stat-icon"><i class="fas fa-fire"></i></div>
                 <div class="stat-number">{{ repeated_questions|length }}</div>
                 <div class="stat-label">Repeated Questions</div>
             </div>
         </div>
 
-        <!-- Processed Files List -->
-        <h3>📁 Processed Files</h3>
-        <div class="file-list">
-            {% for file in processed_files %}
-            <div class="file-item">
-                <strong>{{ loop.index }}.</strong> {{ file.filename }}
-                <span style="color: #666; font-size: 14px;">
-                    ({{ file.question_count }} questions, {{ file.token_count }} tokens)
-                </span>
+        <!-- SECTIONS -->
+
+        <!-- 1. Processed Files -->
+        <div class="section-card">
+            <div class="section-header open" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(108,92,231,0.15);color:#a29bfe;">
+                        <i class="fas fa-folder-open"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">Processed Files</div>
+                        <div class="section-subtitle">{{ processed_files|length }} files successfully processed</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
             </div>
-            {% endfor %}
+            <div class="section-body open">
+                {% for file in processed_files %}
+                <div class="processed-file">
+                    <div class="pf-index">{{ loop.index }}</div>
+                    <div class="pf-name">{{ file.filename }}</div>
+                    <div class="pf-meta">
+                        <span class="pf-tag questions">{{ file.question_count }} Qs</span>
+                        <span class="pf-tag tokens">{{ file.token_count }} tokens</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Predicted Question Paper Section (NEW) -->
+        <!-- 2. Predicted Paper -->
         {% if paper %}
-        <h3>📝 AI-Generated Predicted Question Paper</h3>
-        <div class="text-box" style="background-color: #e8f5e9; border-left: 4px solid #4caf50;">
-            <p style="color: #2e7d32; font-weight: bold; margin-top: 0;">
-                🎯 Based on cross-paper analysis, here's your personalized predicted question paper!
-            </p>
+        <div class="section-card">
+            <div class="section-header open" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(85,239,196,0.15);color:#55efc4;">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">AI-Generated Predicted Question Paper</div>
+                        <div class="section-subtitle">Based on cross-paper frequency and importance analysis</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="section-body open">
+                <!-- Section C -->
+                <div class="paper-section">
+                    <div class="paper-section-header">
+                        <span class="paper-section-badge badge-c">SECTION C</span>
+                        <span class="paper-section-label">Long Answer Questions — Most Important</span>
+                    </div>
+                    {% if paper.section_c and paper.section_c|length > 0 %}
+                    <div class="section-c-items">
+                        {% for q in paper.section_c %}
+                        <div class="question-item">
+                            <div class="q-num">{{ loop.index }}</div>
+                            <div class="q-text">{{ q }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">No questions available for this section.</div>
+                    {% endif %}
+                </div>
 
-            <div style="background-color: white; padding: 20px; border-radius: 8px; margin-top: 15px;">
-                <!-- Section C: Long Answer Questions -->
-                <h4 style="color: #d32f2f; margin-top: 0;">
-                    📕 SECTION C — Long Answer Questions (Most Important)
-                </h4>
-                {% if paper.section_c and paper.section_c|length > 0 %}
-                <ol style="line-height: 2;">
-                    {% for q in paper.section_c %}
-                    <li style="margin-bottom: 15px; padding: 10px; background-color: #ffebee; border-left: 4px solid #d32f2f; border-radius: 3px;">
-                        {{ q }}
-                    </li>
-                    {% endfor %}
-                </ol>
-                {% else %}
-                <p style="color: #999; font-style: italic;">No questions available for this section.</p>
+                <!-- Section B -->
+                <div class="paper-section">
+                    <div class="paper-section-header">
+                        <span class="paper-section-badge badge-b">SECTION B</span>
+                        <span class="paper-section-label">Medium Answer Questions</span>
+                    </div>
+                    {% if paper.section_b and paper.section_b|length > 0 %}
+                    <div class="section-b-items">
+                        {% for q in paper.section_b %}
+                        <div class="question-item">
+                            <div class="q-num">{{ loop.index }}</div>
+                            <div class="q-text">{{ q }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">No questions available for this section.</div>
+                    {% endif %}
+                </div>
+
+                <!-- Section A -->
+                <div class="paper-section">
+                    <div class="paper-section-header">
+                        <span class="paper-section-badge badge-a">SECTION A</span>
+                        <span class="paper-section-label">Short Answer Questions</span>
+                    </div>
+                    {% if paper.section_a and paper.section_a|length > 0 %}
+                    <div class="section-a-items">
+                        {% for q in paper.section_a %}
+                        <div class="question-item">
+                            <div class="q-num">{{ loop.index }}</div>
+                            <div class="q-text">{{ q }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="empty-state">No questions available for this section.</div>
+                    {% endif %}
+                </div>
+
+                <div class="tip-box">
+                    <i class="fas fa-lightbulb"></i>
+                    <p><strong>Study Tip:</strong> Focus on Section C (Long Answer) questions first — they carry the highest weight and are the most frequently repeated across all uploaded papers.</p>
+                </div>
+
+                {% if pdf_available %}
+                <div class="download-cta">
+                    <div class="download-cta-text">
+                        <h4><i class="fas fa-file-pdf"></i>&nbsp; PDF Version Ready</h4>
+                        <p>Download the predicted paper as a beautifully formatted PDF for printing or offline study.</p>
+                    </div>
+                    <a href="{{ url_for('download_pdf') }}" class="download-btn">
+                        <i class="fas fa-download"></i> Download PDF
+                    </a>
+                </div>
                 {% endif %}
+            </div>
+        </div>
+        {% endif %}
 
-                <!-- Section B: Medium Answer Questions -->
-                <h4 style="color: #f57c00; margin-top: 25px;">
-                    📗 SECTION B — Medium Answer Questions
-                </h4>
-                {% if paper.section_b and paper.section_b|length > 0 %}
-                <ol style="line-height: 2;">
-                    {% for q in paper.section_b %}
-                    <li style="margin-bottom: 15px; padding: 10px; background-color: #fff3e0; border-left: 4px solid #f57c00; border-radius: 3px;">
-                        {{ q }}
-                    </li>
+        <!-- 3. Repeated Questions -->
+        <div class="section-card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(253,121,168,0.15);color:#fd79a8;">
+                        <i class="fas fa-fire-alt"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">Most Repeated Questions</div>
+                        <div class="section-subtitle">Questions that appeared in multiple papers — high priority!</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="section-body">
+                {% if repeated_questions and repeated_questions|length > 0 %}
+                    {% for item in repeated_questions[:20] %}
+                    <div class="repeated-item {% if item.frequency >= 4 %}freq-high{% elif item.frequency >= 3 %}freq-mid{% else %}freq-low{% endif %}">
+                        <div class="freq-badge {% if item.frequency >= 4 %}high{% elif item.frequency >= 3 %}mid{% else %}low{% endif %}">
+                            <i class="fas fa-redo"></i> Appeared {{ item.frequency }}x
+                        </div>
+                        <div class="repeated-text">{{ item.question[:300] }}{% if item.question|length > 300 %}...{% endif %}</div>
+                    </div>
                     {% endfor %}
-                </ol>
                 {% else %}
-                <p style="color: #999; font-style: italic;">No questions available for this section.</p>
+                <div class="empty-state">
+                    <i class="fas fa-info-circle" style="font-size:20px;display:block;margin-bottom:8px;color:var(--accent-2);"></i>
+                    No repeated questions found. Each question appears only once across all papers.
+                </div>
                 {% endif %}
+            </div>
+        </div>
 
-                <!-- Section A: Short Answer Questions -->
-                <h4 style="color: #1976d2; margin-top: 25px;">
-                    📘 SECTION A — Short Answer Questions
-                </h4>
-                {% if paper.section_a and paper.section_a|length > 0 %}
-                <ol style="line-height: 2;">
-                    {% for q in paper.section_a %}
-                    <li style="margin-bottom: 15px; padding: 10px; background-color: #e3f2fd; border-left: 4px solid #1976d2; border-radius: 3px;">
-                        {{ q }}
-                    </li>
+        <!-- 4. Top Keywords -->
+        <div class="section-card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(253,203,110,0.15);color:#fdcb6e;">
+                        <i class="fas fa-tags"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">Top Keywords & Topics</div>
+                        <div class="section-subtitle">Most important topics identified across all papers</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="section-body">
+                {% if keywords and keywords|length > 0 %}
+                <div class="keywords-cloud">
+                    {% for word, frequency in keywords %}
+                    <div class="keyword-tag">
+                        {{ word }} <span class="kw-count">×{{ frequency }}</span>
+                    </div>
                     {% endfor %}
-                </ol>
+                </div>
                 {% else %}
-                <p style="color: #999; font-style: italic;">No questions available for this section.</p>
+                <div class="empty-state">No keywords extracted.</div>
                 {% endif %}
             </div>
+        </div>
 
-            <div style="margin-top: 15px; padding: 12px; background-color: #fff9c4; border-left: 4px solid #fbc02d; border-radius: 3px;">
-                <strong>💡 Tip:</strong> Focus on Section C (Long Answer) questions first as they have the highest importance based on frequency analysis across all uploaded papers.
+        <!-- 5. Ranked Questions -->
+        <div class="section-card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(116,185,255,0.15);color:#74b9ff;">
+                        <i class="fas fa-trophy"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">Top 20 Questions by Importance</div>
+                        <div class="section-subtitle">Ranked by keyword relevance and cross-paper analysis</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
             </div>
-
-            <!-- PDF Download Button -->
-            {% if pdf_available %}
-            <div style="margin-top: 20px; text-align: center; padding: 15px; background-color: #e8f5e9; border-radius: 8px;">
-                <a href="{{ url_for('download_pdf') }}" class="download-button">
-                    📥 Download Predicted Paper (PDF)
-                </a>
-                <p style="margin-top: 10px; color: #2e7d32; font-size: 14px;">
-                    ✅ PDF version is ready for download and printing!
-                </p>
+            <div class="section-body">
+                {% if ranked and ranked|length > 0 %}
+                    {% set avg_score = ranked|map(attribute=1)|sum / ranked|length %}
+                    {% for question, score, idx in ranked[:20] %}
+                    <div class="ranked-item {% if score >= avg_score * 1.5 %}priority-high{% elif score >= avg_score %}priority-mid{% else %}priority-low{% endif %}">
+                        <div class="rank-num">#{{ loop.index }}</div>
+                        <div class="rank-content">
+                            <div class="rank-priority {% if score >= avg_score * 1.5 %}high{% elif score >= avg_score %}mid{% else %}low{% endif %}">
+                                {% if score >= avg_score * 1.5 %}🔴 HIGH PRIORITY{% elif score >= avg_score %}🟡 MEDIUM{% else %}🟢 LOW{% endif %}
+                                &bull; Score: {{ "%.2f"|format(score) }}
+                            </div>
+                            <div class="rank-text">{{ question[:300] }}{% if question|length > 300 %}...{% endif %}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="empty-state">No ranked questions available.</div>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
-        {% endif %}
 
-        <!-- Repeated Questions Section -->
-        <h3>🔥 Most Repeated Questions Across Papers</h3>
-        {% if repeated_questions and repeated_questions|length > 0 %}
-        <div class="text-box" style="background-color: #fff3e0; border-left: 4px solid #ff9800;">
-            <p style="color: #e65100; font-weight: bold; margin-top: 0;">
-                ⚡ These questions appeared in multiple papers - HIGH PRIORITY for exam preparation!
-            </p>
-            {% for item in repeated_questions[:20] %}
-            <div style="margin-bottom: 15px; padding: 12px; background-color: white; border-left: 4px solid
-                {% if item.frequency >= 4 %}#d32f2f
-                {% elif item.frequency >= 3 %}#f57c00
-                {% else %}#fbc02d{% endif %}; border-radius: 3px;">
-                <span class="frequency-badge">Appeared {{ item.frequency }}x</span>
-                <br><br>
-                {{ item.question[:300] }}{% if item.question|length > 300 %}...{% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-box" style="background-color: #e8f5e9; border-left: 4px solid #4caf50;">
-            ℹ️ No repeated questions found. Each question appears only once across all papers.
-        </div>
-        {% endif %}
-
-        <!-- Top Keywords Section -->
-        <h3>🔥 Top Keywords (Most Important Topics Across All Papers)</h3>
-        {% if keywords and keywords|length > 0 %}
-        <div class="text-box" style="background-color: #fff3e0;">
-            <p style="color: #e65100; font-weight: bold; margin-top: 0;">
-                📌 These keywords appear most frequently across all analyzed papers:
-            </p>
-            {% for word, frequency in keywords %}
-            <div style="display: inline-block; margin: 5px; padding: 8px 15px; background-color: #ff9800; color: white; border-radius: 20px; font-weight: bold;">
-                {{ word }} ({{ frequency }})
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-            ⚠️ No keywords extracted.
-        </div>
-        {% endif %}
-
-        <!-- Ranked Questions Section -->
-        <h3>🏆 Top 20 Most Important Questions (By Keyword Relevance)</h3>
-        {% if ranked and ranked|length > 0 %}
-        <div class="text-box" style="background-color: #f3e5f5;">
-            <p style="color: #7b1fa2; font-weight: bold; margin-top: 0;">
-                🎯 Questions ranked by relevance to important topics:
-            </p>
-            {% for question, score, idx in ranked[:20] %}
-            <div style="margin-bottom: 15px; padding: 12px; background-color: white; border-left: 4px solid
-                {% if score >= (ranked|map(attribute=1)|sum / ranked|length * 1.5) %}#e91e63
-                {% elif score >= (ranked|map(attribute=1)|sum / ranked|length) %}#ff9800
-                {% else %}#4caf50{% endif %}; border-radius: 3px;">
-                <strong>
-                {% if score >= (ranked|map(attribute=1)|sum / ranked|length * 1.5) %}🔴 HIGH PRIORITY
-                {% elif score >= (ranked|map(attribute=1)|sum / ranked|length) %}🟡 MEDIUM
-                {% else %}🟢 LOW{% endif %}
-                [Importance Score: {{ "%.2f"|format(score) }}]</strong><br><br>
-                {{ question[:300] }}{% if question|length > 300 %}...{% endif %}
-            </div>
-            {% endfor %}
-        </div>
-        {% else %}
-        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-            ⚠️ No ranked questions available.
-        </div>
-        {% endif %}
-
-        <!-- Errors Section -->
+        <!-- 6. Errors -->
         {% if extraction_errors and extraction_errors|length > 0 %}
-        <h3>⚠️ Processing Warnings</h3>
-        <div class="text-box" style="background-color: #fff3cd; border-left: 4px solid #ffc107;">
-            {% for error in extraction_errors %}
-            <div style="margin-bottom: 5px;">• {{ error }}</div>
-            {% endfor %}
+        <div class="section-card">
+            <div class="section-header" onclick="toggleSection(this)">
+                <div class="section-header-left">
+                    <div class="section-icon" style="background:rgba(253,203,110,0.15);color:#fdcb6e;">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div>
+                        <div class="section-title">Processing Warnings</div>
+                        <div class="section-subtitle">{{ extraction_errors|length }} warning(s) during processing</div>
+                    </div>
+                </div>
+                <div class="section-toggle"><i class="fas fa-chevron-down"></i></div>
+            </div>
+            <div class="section-body">
+                {% for error in extraction_errors %}
+                <div class="error-item">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ error }}
+                </div>
+                {% endfor %}
+            </div>
         </div>
         {% endif %}
 
-        <a href="{{ url_for('index') }}" class="back-button">⬅ Analyze More Papers</a>
+        <!-- Footer -->
+        <div class="footer">
+            <p>PrepVision AI &mdash; Intelligent Question Paper Prediction</p>
+        </div>
     </div>
+
+    <script>
+        // Toggle collapsible sections
+        function toggleSection(header) {
+            header.classList.toggle('open');
+            const body = header.nextElementSibling;
+            body.classList.toggle('open');
+        }
+
+        // Auto-open predicted paper section smoothly
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add staggered fade-in to question items
+            document.querySelectorAll('.question-item, .repeated-item, .ranked-item').forEach((item, i) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(10px)';
+                item.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            });
+
+            // Intersection Observer for scroll animations
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const items = entry.target.querySelectorAll('.question-item, .repeated-item, .ranked-item, .processed-file, .keyword-tag');
+                        items.forEach((item, i) => {
+                            setTimeout(() => {
+                                item.style.opacity = '1';
+                                item.style.transform = 'translateY(0) translateX(0)';
+                            }, i * 50);
+                        });
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.section-body').forEach(body => {
+                observer.observe(body);
+            });
+        });
+    </script>
 </body>
 </html>

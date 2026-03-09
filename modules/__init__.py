@@ -3,5 +3,6 @@
 
 from .preprocessing import preprocess_text, extract_questions, analyze_text, analyze_topics
 from .generator import generate_predicted_paper
+from .pdf_generator import create_pdf
 
-__all__ = ['preprocess_text', 'extract_questions', 'analyze_text', 'analyze_topics', 'generate_predicted_paper']
+__all__ = ['preprocess_text', 'extract_questions', 'analyze_text', 'analyze_topics', 'generate_predicted_paper', 'create_pdf']
