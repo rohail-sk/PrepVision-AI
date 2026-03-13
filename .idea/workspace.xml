@@ -5,20 +5,60 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="3ebf1b77-02c4-477f-aa5e-480b6408d4f3" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/ARCHITECTURE_DOCUMENTATION.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/practice_paper_generator.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/question_extractor.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/question_ranker.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/similarity.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/text_cleaner.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/modules/topic_analysis.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/pdf_generator.py" beforeDir="false" afterPath="$PROJECT_DIR$/modules/pdf_generator.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/generated/predicted_paper.pdf" beforeDir="false" afterPath="$PROJECT_DIR$/static/generated/predicted_paper.pdf" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/result.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/result.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/COMPLETION_CERTIFICATE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY4_AUDIT_REPORT.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY4_FINAL_SUMMARY.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY4_FIXES_APPLIED.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY4_QUICK_SUMMARY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY5_CHANGES_LOG.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY5_COMPLETION_CERTIFICATE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY5_COMPLETION_REPORT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY5_QUICK_SUMMARY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY6_COMPLETION_CERTIFICATE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY6_PDF_EXPORT_COMPLETION_REPORT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY6_PDF_EXPORT_QUICK_REFERENCE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY7_AUDIT_COMPLETE_REPORT.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY7_COMPLETION_CERTIFICATE.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY7_FINAL_AUDIT_REPORT.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY7_FINAL_COMPREHENSIVE_REPORT.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/DAY7_QUICK_REFERENCE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/FINAL_AUDIT_RESULT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/INTEGRATION_AUDIT_REPORT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/INTEGRATION_FIXES_APPLIED.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MINIMUM_FILES_UPDATE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MULTI_PAPER_ANALYSIS_REPORT.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/MULTI_PAPER_QUICK_GUIDE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP_MODULE_COMPLETE_REPORT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NLP_PREPROCESSING_VERIFIED.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OCR_FEATURES.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/PREDICTED_PAPER_GUIDE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Paper-publish-prepVision.doc" beforeDir="false" afterPath="$PROJECT_DIR$/Paper-publish-prepVision.doc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/QUICKSTART.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/QUICKSTART_OCR.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/QUICK_REFERENCE.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/REQUIREMENTS_SATISFIED.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RESEARCH_PAPER_TECHNICAL_EXPLANATION.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/RESEARCH_PAPER_TECHNICAL_EXPLANATION.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TOPIC_ANALYSIS_COMPLETION_REPORT.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TOPIC_ANALYSIS_DOCS.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TOPIC_ANALYSIS_QUICK_REF.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TOPIC_ANALYSIS_README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/TOPIC_ANALYSIS_SUMMARY.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/VERIFICATION_CHECKLIST.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/audit_results.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/day7_audit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/example_topic_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/examples_nlp_usage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/final_day7_audit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_audit.py" beforeDir="false" afterPath="$PROJECT_DIR$/PROJECT_REPORT_CONTENT.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_fuzzy_matching.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_integration.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_preprocessing.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_similarity.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_topic_analysis.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/verify_minimum_2.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/~$per-publish-prepVision.doc" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +74,7 @@
     <selectedModels>
       <entry key="chat-panel" value="Claude Opus 4.5" />
       <entry key="agent-panel" value="Claude Opus 4.5" />
+      <entry key="edit-panel" value="Claude Opus 4.6" />
     </selectedModels>
   </component>
   <component name="FileTemplateManagerImpl">

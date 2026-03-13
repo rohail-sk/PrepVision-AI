@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" id="htmlRoot">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -31,6 +31,89 @@
             --radius-md: 16px;
             --radius-lg: 24px;
             --radius-xl: 32px;
+            --orb-opacity: 0.3;
+            --grid-line: rgba(255,255,255,0.02);
+            --navbar-bg: rgba(255,255,255,0.03);
+            --drop-bg: rgba(108,92,231,0.02);
+            --drop-bg-hover: rgba(108,92,231,0.08);
+            --theme-transition: background 0.4s ease, color 0.4s ease, border-color 0.4s ease;
+        }
+
+        /* ── LIGHT MODE OVERRIDES ── */
+        .light-mode {
+            --bg-primary: #f0f2ff;
+            --bg-secondary: #e4e8ff;
+            --bg-card: rgba(255,255,255,0.7);
+            --bg-card-hover: rgba(255,255,255,0.9);
+            --text-primary: #1a1a3e;
+            --text-secondary: #4a4a7a;
+            --text-muted: #7878aa;
+            --border-color: rgba(108,92,231,0.15);
+            --shadow-glow: 0 0 60px rgba(108,92,231,0.12);
+            --orb-opacity: 0.12;
+            --grid-line: rgba(108,92,231,0.04);
+            --navbar-bg: rgba(255,255,255,0.75);
+            --drop-bg: rgba(108,92,231,0.03);
+            --drop-bg-hover: rgba(108,92,231,0.06);
+        }
+        .light-mode body { background: var(--bg-primary); }
+        .light-mode .bg-grid {
+            background-image:
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+        }
+        .light-mode .bg-mesh .orb { opacity: var(--orb-opacity); }
+        .light-mode .navbar { background: var(--navbar-bg); border-color: var(--border-color); }
+        .light-mode .upload-card { background: rgba(255,255,255,0.75); border-color: var(--border-color); }
+        .light-mode .feature-chip { background: var(--bg-card); border-color: var(--border-color); }
+        .light-mode .drop-zone { background: var(--drop-bg); border-color: rgba(108,92,231,0.25); }
+        .light-mode .drop-zone:hover, .light-mode .drop-zone.drag-over { background: var(--drop-bg-hover); }
+        .light-mode .file-item { background: rgba(255,255,255,0.6); border-color: var(--border-color); }
+        .light-mode .format-info { background: rgba(108,92,231,0.06); border-color: rgba(108,92,231,0.18); }
+
+        /* ── THEME TOGGLE BUTTON ── */
+        .theme-toggle {
+            position: relative;
+            width: 56px; height: 28px;
+            background: none; border: none; cursor: pointer; padding: 0;
+            display: flex; align-items: center;
+        }
+        .toggle-track {
+            width: 56px; height: 28px;
+            background: rgba(108,92,231,0.2);
+            border: 1.5px solid rgba(108,92,231,0.35);
+            border-radius: 14px;
+            transition: background 0.4s ease, border-color 0.4s ease;
+            position: relative; overflow: hidden;
+        }
+        .light-mode .toggle-track {
+            background: rgba(108,92,231,0.15);
+            border-color: rgba(108,92,231,0.3);
+        }
+        .toggle-thumb {
+            position: absolute; top: 3px; left: 3px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: var(--gradient-1);
+            box-shadow: 0 2px 8px rgba(108,92,231,0.5);
+            transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1), background 0.4s ease;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 10px; color: #fff;
+        }
+        .light-mode .toggle-thumb { transform: translateX(28px); }
+        .toggle-icon-moon, .toggle-icon-sun {
+            position: absolute; font-size: 11px;
+            top: 50%; transform: translateY(-50%);
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .toggle-icon-moon { right: 7px; color: #a29bfe; opacity: 1; }
+        .toggle-icon-sun  { left: 7px;  color: #ffeaa7; opacity: 0; }
+        .light-mode .toggle-track .toggle-icon-moon { opacity: 0; }
+        .light-mode .toggle-track .toggle-icon-sun  { opacity: 1; }
+
+        /* smooth global transition */
+        body, .navbar, .upload-card, .feature-chip, .drop-zone, .file-item, .format-info {
+            transition: var(--theme-transition, all 0.4s ease);
         }
 
         body {
@@ -348,6 +431,16 @@
                 <div class="nav-logo">🧠</div>
                 <div class="nav-title">Prep<span>Vision</span> AI</div>
             </a>
+
+            <!-- Theme Toggle -->
+            <button class="theme-toggle" id="themeToggle" title="Toggle light / dark mode" aria-label="Toggle theme">
+                <span class="toggle-track">
+                    <span class="toggle-icon-sun"><i class="fas fa-sun"></i></span>
+                    <span class="toggle-icon-moon"><i class="fas fa-moon"></i></span>
+                    <span class="toggle-thumb"></span>
+                </span>
+            </button>
+
             <div class="nav-badge"><i class="fas fa-bolt"></i>&nbsp; AI Powered</div>
         </nav>
 
@@ -493,6 +586,20 @@
         }
 
         form.addEventListener('submit', () => { submitBtn.classList.add('loading'); submitBtn.disabled = true; });
+
+        // ── THEME TOGGLE ──────────────────────────────────────────────
+        const html       = document.getElementById('htmlRoot');
+        const toggleBtn  = document.getElementById('themeToggle');
+
+        // Apply saved preference immediately (no flash)
+        const savedTheme = localStorage.getItem('prepvision-theme');
+        if (savedTheme === 'light') html.classList.add('light-mode');
+
+        toggleBtn.addEventListener('click', () => {
+            html.classList.toggle('light-mode');
+            const isLight = html.classList.contains('light-mode');
+            localStorage.setItem('prepvision-theme', isLight ? 'light' : 'dark');
+        });
     </script>
 </body>
 </html>
