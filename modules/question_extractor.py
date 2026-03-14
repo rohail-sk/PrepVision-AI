@@ -124,6 +124,29 @@ QUESTION_VERB_PATTERN = re.compile(
     re.IGNORECASE
 )
 
+# Start of a new question block (e.g., 1. / 2) / Q3. / Q4:)
+MAIN_QUESTION_START_PATTERN = re.compile(r'^\s*(?:q\s*)?\d+[\.):-]\s*', re.IGNORECASE)
+
+# Sub-question markers (e.g., a) / b. / i) / ii.)
+SUBQUESTION_START_PATTERN = re.compile(r'^\s*(?:[a-f]|[ivx]{1,5})[\.)]\s+', re.IGNORECASE)
+
+# Explicit noise keywords frequently found in exam headers/instructions
+NOISE_PHRASES = [
+    'all questions are compulsory',
+    'answer each next main question',
+    'figures to the right indicate',
+    'mobile phone',
+    'attempt any five',
+    'section a',
+    'section b',
+    'section c',
+    'instructions',
+    'marks',
+    'time',
+    'hours',
+    'communication devices are not permissible',
+]
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # MAIN FUNCTIONS
@@ -250,47 +273,86 @@ def extract_questions_advanced(raw_text):
     lines = raw_text.split('\n')
     total_lines = len(lines)
 
-    questions = []
     removed_lines = []
+    question_blocks = []
+    current_block = ""
 
-    # First pass: Extract by question number patterns
-    # Pattern for main questions: Q1, Q2, 1., 2., etc.
-    main_question_pattern = re.compile(r'^[Qq]?\s*\d+[\.\)\:]?\s*(.+)', re.MULTILINE)
+    def normalize_line(text):
+        """Normalize spacing so merged multi-line questions read naturally."""
+        return re.sub(r'\s+', ' ', text or '').strip()
 
-    # Pattern for sub-questions: a), b), c), i), ii), etc.
-    sub_question_pattern = re.compile(r'^[a-f][\.\)]\s*(.+)', re.IGNORECASE)
-    roman_pattern = re.compile(r'^[ivx]+[\.\)]\s*(.+)', re.IGNORECASE)
+    def has_noise_phrase(text):
+        text_lower = text.lower()
+        return any(phrase in text_lower for phrase in NOISE_PHRASES)
 
-    for line in lines:
-        line = line.strip()
-
-        # Skip empty lines
+    def should_skip_line(line):
+        """Detect non-question lines before block merging."""
         if not line:
-            continue
-
-        # Skip very short lines
+            return True, "[EMPTY]"
         if len(line) < 5:
-            removed_lines.append(f"[TOO SHORT] {line}")
-            continue
-
-        # Skip very long lines (likely paragraphs or instructions)
+            return True, "[TOO SHORT]"
         if len(line) > 400:
-            removed_lines.append(f"[TOO LONG] {line[:50]}...")
-            continue
-
-        # Check if it's an instruction line
+            return True, "[TOO LONG]"
+        if re.match(r'^\s*\[\s*\d+\s*\]\s*$', line):
+            return True, "[PAGE MARKER]"
+        if re.match(r'^\s*\d{5,6}\s*$', line):
+            return True, "[EXAM CODE]"
+        if has_noise_phrase(line):
+            return True, "[NOISE PHRASE]"
         if is_instruction_line(line):
-            removed_lines.append(f"[INSTRUCTION] {line}")
+            return True, "[INSTRUCTION]"
+        return False, ""
+
+    # Pass 1: merge multi-line questions by detecting new question starts.
+    for raw_line in lines:
+        line = normalize_line(raw_line)
+        skip, reason = should_skip_line(line)
+        if skip:
+            if line:
+                removed_lines.append(f"{reason} {line}")
             continue
 
-        # Check if it's a valid question
-        if is_valid_question(line):
-            # Clean the question text
-            cleaned = clean_question_for_output(line)
-            if cleaned and len(cleaned) >= 5:
-                questions.append(cleaned)
+        starts_new_question = bool(MAIN_QUESTION_START_PATTERN.match(line) or SUBQUESTION_START_PATTERN.match(line))
+
+        if starts_new_question:
+            # Save previous block before starting a new one.
+            if current_block:
+                question_blocks.append(current_block.strip())
+            current_block = line
         else:
-            removed_lines.append(f"[NOT QUESTION] {line}")
+            # Continuation line: append to the active question block.
+            if current_block:
+                current_block = f"{current_block} {line}".strip()
+            else:
+                # Fallback: accept standalone question-like sentence.
+                if QUESTION_VERB_PATTERN.search(line) or line.endswith('?'):
+                    current_block = line
+                else:
+                    removed_lines.append(f"[NO QUESTION START] {line}")
+
+    if current_block:
+        question_blocks.append(current_block.strip())
+
+    # Pass 2: clean and validate merged blocks.
+    questions = []
+    for block in question_blocks:
+        cleaned = clean_question_for_output(block)
+        cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+
+        if len(cleaned) < 5 or len(cleaned) > 400:
+            removed_lines.append(f"[INVALID LENGTH] {cleaned[:80]}")
+            continue
+
+        # Must look like a real question after merge.
+        if not (QUESTION_VERB_PATTERN.search(cleaned) or cleaned.endswith('?') or SUBQUESTION_PATTERN.match(cleaned)):
+            removed_lines.append(f"[NOT QUESTION BLOCK] {cleaned[:80]}")
+            continue
+
+        # Make sure question reads as a complete sentence.
+        if cleaned and cleaned[-1] not in '.?!':
+            cleaned += '.'
+
+        questions.append(cleaned)
 
     # Remove duplicates while preserving order
     seen = set()
@@ -304,6 +366,7 @@ def extract_questions_advanced(raw_text):
     # Statistics
     stats = {
         'total_lines': total_lines,
+        'question_blocks': len(question_blocks),
         'questions_found': len(unique_questions),
         'removed_count': len(removed_lines),
         'duplicates_removed': len(questions) - len(unique_questions)
@@ -312,6 +375,7 @@ def extract_questions_advanced(raw_text):
     # Print summary
     print(f"\n📊 EXTRACTION STATISTICS:")
     print(f"   Total lines processed: {stats['total_lines']}")
+    print(f"   Question blocks formed: {stats['question_blocks']}")
     print(f"   Questions extracted: {stats['questions_found']}")
     print(f"   Instruction lines removed: {stats['removed_count']}")
     print(f"   Duplicates removed: {stats['duplicates_removed']}")

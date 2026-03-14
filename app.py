@@ -233,6 +233,11 @@ def upload_file():
         print(f"   Original: {len(all_questions)} questions")
         print(f"   After cleaning: {len(cleaned_questions)} valid questions")
 
+        # Debug: inspect complete extracted questions before ranking
+        print("\n🧪 DEBUG: Sample cleaned questions before ranking")
+        for idx, q in enumerate(cleaned_questions[:10], 1):
+            print(f"   {idx}. {q}")
+
         # Step 2: Semantic similarity grouping (TF-IDF based)
         print("\n🔗 Step 2: Grouping similar questions...")
         question_groups = group_similar_questions(cleaned_questions, threshold=0.65)
@@ -272,6 +277,14 @@ def upload_file():
         # Step 7: Generate Practice Paper
         print("\n📄 Step 7: Generating practice paper...")
         practice_paper = generate_practice_paper(ranked_questions)
+
+        # Debug: verify full questions are retained before PDF generation
+        print("\n🧪 DEBUG: Practice paper question preview before PDF")
+        for section_name in ['section_c', 'section_b', 'section_a']:
+            section_questions = practice_paper.get(section_name, [])
+            print(f"   {section_name.upper()}: {len(section_questions)} questions")
+            for idx, q in enumerate(section_questions[:5], 1):
+                print(f"      {idx}. {q}")
 
         # Legacy format for backwards compatibility with templates
         predicted_paper = {
