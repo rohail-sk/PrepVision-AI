@@ -352,6 +352,123 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,206,201,0.4);
         }
+        .cta-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .ask-question-btn,
+        .nav-tab-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            border-radius: var(--radius-sm);
+            border: 1px solid rgba(108,92,231,0.3);
+            background: rgba(108,92,231,0.18);
+            color: #e9e4ff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: 'Inter', sans-serif;
+        }
+        .ask-question-btn:hover,
+        .nav-tab-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(108,92,231,0.28);
+        }
+        .nav-tab-btn.active {
+            background: var(--gradient-1);
+            border-color: transparent;
+            color: #ffffff;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Ask AI Tab */
+        .ask-tab-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .chat-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+        .chat-messages {
+            height: 52vh;
+            overflow-y: auto;
+            padding: 14px;
+            background: rgba(255,255,255,0.02);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            max-width: 84%;
+            padding: 10px 12px;
+            border-radius: 10px;
+            line-height: 1.5;
+            font-size: 14px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+        .chat-you {
+            align-self: flex-end;
+            background: #6c5ce7;
+            color: #ffffff;
+        }
+        .chat-ai {
+            align-self: flex-start;
+            background: var(--bg-card-hover);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        .chat-typing {
+            font-style: italic;
+            color: var(--text-muted);
+        }
+        .chat-input-row {
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 10px;
+            background: transparent;
+        }
+        .chat-input {
+            flex: 1;
+            padding: 11px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 9px;
+            outline: none;
+            font-size: 14px;
+            color: var(--text-primary);
+            background: var(--bg-card);
+        }
+        .chat-send-btn {
+            border: none;
+            border-radius: 9px;
+            padding: 10px 14px;
+            background: #6c5ce7;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            min-width: 80px;
+        }
+        .chat-send-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
 
         /* Repeated Questions */
         .repeated-item {
@@ -535,6 +652,12 @@
                 <a href="{{ url_for('index') }}" class="nav-btn nav-btn-ghost">
                     <i class="fas fa-arrow-left"></i> New Analysis
                 </a>
+                <button type="button" class="nav-tab-btn" id="analysisTabBtn" onclick="switchMainTab('analysis')">
+                    <i class="fas fa-chart-line"></i> Analysis
+                </button>
+                <button type="button" class="nav-tab-btn" id="askTabBtn" onclick="switchMainTab('ask')">
+                    <i class="fas fa-comments"></i> Ask Question
+                </button>
                 {% if report_pdf_available %}
                 <a href="{{ url_for('download_report_pdf') }}" class="nav-btn nav-btn-ghost" style="border-color: rgba(253,121,168,0.3); color: #fd79a8;">
                     <i class="fas fa-star"></i> Important Questions
@@ -552,6 +675,7 @@
             </div>
         </nav>
 
+        <div id="analysisTabContent" class="tab-content active">
         <!-- Page Header -->
         <div class="page-header">
             <div class="status-badge">
@@ -703,9 +827,14 @@
                         <h4><i class="fas fa-file-pdf"></i>&nbsp; Practice Paper PDF Ready</h4>
                         <p>Download the practice paper as a beautifully formatted PDF for printing or offline study.</p>
                     </div>
-                    <a href="{{ url_for('download_pdf') }}" class="download-btn">
-                        <i class="fas fa-download"></i> Download Practice Paper
-                    </a>
+                    <div class="cta-actions">
+                        <button type="button" class="ask-question-btn" onclick="switchMainTab('ask')">
+                            <i class="fas fa-comments"></i> Ask Question
+                        </button>
+                        <a href="{{ url_for('download_pdf') }}" class="download-btn">
+                            <i class="fas fa-download"></i> Download Practice Paper
+                        </a>
+                    </div>
                 </div>
                 {% endif %}
             </div>
@@ -897,10 +1026,38 @@
         <div class="footer">
             <p>PrepVision AI &mdash; Intelligent Question Paper Prediction</p>
         </div>
+        </div>
+
+        <div id="askTabContent" class="tab-content">
+            <div class="page-header" style="margin-bottom: 24px;">
+                <div class="status-badge">
+                    <span class="check-icon"><i class="fas fa-robot"></i></span>
+                    Ask AI
+                </div>
+                <h1>Ask Questions From Your Analysis</h1>
+                <p>Chat with AI using your current session. History is kept until you refresh this page.</p>
+            </div>
+
+            <div class="ask-tab-panel" role="region" aria-label="Ask AI Chat">
+                <div class="chat-modal-header">
+                    <span><i class="fas fa-comments"></i>&nbsp; Ask AI</span>
+                    <button type="button" class="nav-tab-btn" onclick="switchMainTab('analysis')">
+                        <i class="fas fa-arrow-left"></i> Back to Analysis
+                    </button>
+                </div>
+                <div id="chatMessages" class="chat-messages"></div>
+                <div class="chat-input-row">
+                    <input id="chatInput" class="chat-input" type="text" placeholder="Type your question..." />
+                    <button id="chatSendBtn" class="chat-send-btn" type="button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
         const THEME_KEY = 'prepvision-theme';
+        const chatHistory = [];
+        let isSending = false;
 
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
@@ -931,8 +1088,118 @@
             body.classList.toggle('open');
         }
 
+        function switchMainTab(tabName) {
+            const analysis = document.getElementById('analysisTabContent');
+            const ask = document.getElementById('askTabContent');
+            const analysisBtn = document.getElementById('analysisTabBtn');
+            const askBtn = document.getElementById('askTabBtn');
+
+            if (tabName === 'ask') {
+                analysis.classList.remove('active');
+                ask.classList.add('active');
+                analysisBtn.classList.remove('active');
+                askBtn.classList.add('active');
+                renderChat();
+                const input = document.getElementById('chatInput');
+                if (input) {
+                    input.focus();
+                }
+            } else {
+                ask.classList.remove('active');
+                analysis.classList.add('active');
+                askBtn.classList.remove('active');
+                analysisBtn.classList.add('active');
+            }
+        }
+
+        function renderChat() {
+            const chatBox = document.getElementById('chatMessages');
+            chatBox.innerHTML = '';
+
+            if (chatHistory.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'chat-message chat-ai';
+                empty.textContent = 'Ask anything about your analyzed papers.';
+                chatBox.appendChild(empty);
+            } else {
+                chatHistory.forEach(message => {
+                    const bubble = document.createElement('div');
+                    bubble.className = `chat-message ${message.role === 'You' ? 'chat-you' : 'chat-ai'}`;
+                    if (message.loading) {
+                        bubble.classList.add('chat-typing');
+                    }
+                    bubble.textContent = `${message.role}: ${message.text}`;
+                    chatBox.appendChild(bubble);
+                });
+            }
+
+            chatBox.scrollTo({ top: chatBox.scrollHeight, behavior: 'smooth' });
+        }
+
+        function sendMessage() {
+            if (isSending) {
+                return;
+            }
+
+            const input = document.getElementById('chatInput');
+            const sendBtn = document.getElementById('chatSendBtn');
+            const question = (input.value || '').trim();
+
+            if (!question) {
+                return;
+            }
+
+            chatHistory.push({ role: 'You', text: question });
+            chatHistory.push({ role: 'AI', text: 'AI is typing...', loading: true });
+            renderChat();
+
+            input.value = '';
+            isSending = true;
+            sendBtn.disabled = true;
+
+            fetch('/ask-ai', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ question })
+            })
+                .then(res => res.json().then(data => ({ ok: res.ok, data })))
+                .then(result => {
+                    if (!result.ok || result.data.error) {
+                        throw new Error(result.data.error || 'Unable to generate answer right now.');
+                    }
+
+                    chatHistory.pop();
+                    chatHistory.push({ role: 'AI', text: result.data.answer || 'No response generated.' });
+                    renderChat();
+                })
+                .catch(error => {
+                    chatHistory.pop();
+                    chatHistory.push({ role: 'AI', text: error.message || 'Request failed.' });
+                    renderChat();
+                })
+                .finally(() => {
+                    isSending = false;
+                    sendBtn.disabled = false;
+                    input.focus();
+                });
+        }
+
         // Auto-open predicted paper section smoothly
         document.addEventListener('DOMContentLoaded', () => {
+            switchMainTab('analysis');
+
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keydown', (event) => {
+                    if (event.key === 'Enter') {
+                        event.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+
             // Add staggered fade-in to question items
             document.querySelectorAll('.question-item, .repeated-item, .ranked-item').forEach((item, i) => {
                 item.style.opacity = '0';

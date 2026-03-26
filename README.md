@@ -10,6 +10,7 @@ A Flask-based web application for AI-powered question paper prediction.
 ✅ Beautiful, responsive UI
 ✅ Flash messages for user feedback
 ✅ Maximum file size: 16MB
+✅ Ask Question module with AI-generated exam-style answers
 
 ## Project Structure
 
@@ -54,6 +55,20 @@ PrepVision AI/
    python app.py
    ```
 
+### Ask Question Setup
+
+1. Create/update `.env` in project root:
+   ```bash
+   API_KEY=your_api_key_here
+   HF_API_KEY=your_huggingface_token
+   AI_PROVIDER=gemini
+   AI_MAX_TOKENS=350
+   AI_RETRY_ATTEMPTS=2
+   AI_RETRY_DELAY_SECONDS=1.5
+   ```
+   The Ask Question module uses Gemini primary model `models/gemini-flash-latest` and automatically falls back to HuggingFace on quota/rate-limit errors.
+2. Restart Flask after changing `.env` values.
+
 4. Open your web browser and go to:
    ```
    http://127.0.0.1:5000/
@@ -81,6 +96,8 @@ PrepVision AI/
 - **Frontend:** HTML5, CSS3, JavaScript
 - **Template Engine:** Jinja2
 - **File Handling:** Werkzeug
+- **AI API Calls:** requests
+- **Environment Variables:** python-dotenv
 
 ## Future Enhancements
 

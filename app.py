@@ -1,10 +1,11 @@
 # Import necessary libraries
-from flask import Flask, render_template, request, flash, redirect, url_for, send_file
+from flask import Flask, render_template, request, flash, redirect, url_for, send_file, jsonify
 from werkzeug.utils import secure_filename
 import os
 import pytesseract
 from PIL import Image
 import pdfplumber
+from dotenv import load_dotenv
 
 # Import NLP preprocessing functions
 from modules.preprocessing import preprocess_text, extract_questions, analyze_topics
@@ -25,11 +26,18 @@ from modules.generator import generate_predicted_paper
 # Import PDF generator
 from modules.pdf_generator import create_pdf, create_important_questions_pdf
 
+# Import AI helper
+from modules.ai_helper import get_ai_answer
+
 # Configure Tesseract path for Windows (uncomment and set path if needed)
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Initialize Flask app
 app = Flask(__name__)
+
+# Load environment variables from .env
+load_dotenv()
+API_KEY = os.getenv('API_KEY')
 
 # Secret key for flash messages (change this to a random secret key)
 app.secret_key = 'your-secret-key-here-change-in-production'
@@ -411,6 +419,50 @@ def download_report_pdf():
     except Exception as e:
         flash(f'Error downloading Report PDF: {str(e)}', 'error')
         return redirect(url_for('index'))
+
+
+# Route to answer user questions using external AI API
+@app.route('/ask-ai', methods=['POST'])
+def ask_ai():
+    """Accept JSON question input and return AI answer for chat modal."""
+    payload = request.get_json(silent=True) or {}
+    question = (payload.get('question') or '').strip()
+
+    if not question:
+        return jsonify({'error': 'No question provided'}), 400
+
+    if not API_KEY:
+        return jsonify({'error': 'API key not configured. Please set API_KEY in .env'}), 500
+
+    answer = get_ai_answer(question, api_key=API_KEY)
+    if isinstance(answer, str) and answer.startswith('Error generating response:'):
+        return jsonify({'error': answer}), 502
+    return jsonify({'answer': answer})
+
+
+# Route to answer user questions using external AI API
+@app.route('/ask-question', methods=['POST'])
+def ask_question():
+    """
+    Accept a user question, call the AI helper, and return a JSON response.
+    Returns:
+        JSON with either 'answer' or 'error'
+    """
+    question = (request.form.get('question') or '').strip()
+
+    if not question:
+        return jsonify({'error': 'No question provided'}), 400
+
+    if not API_KEY:
+        return jsonify({'error': 'API key not configured. Please set API_KEY in .env'}), 500
+
+    try:
+        answer = get_ai_answer(question, api_key=API_KEY)
+        if isinstance(answer, str) and answer.startswith('Error generating response:'):
+            return jsonify({'error': answer}), 502
+        return jsonify({'answer': answer})
+    except Exception as e:
+        return jsonify({'error': f'Failed to generate answer: {str(e)}'}), 502
 
 
 # Run the Flask app
